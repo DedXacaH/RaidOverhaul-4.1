@@ -1,6 +1,6 @@
-using SPTarkov.Server.Core.Models.Logging;
-using SPTarkov.Server.Core.Models.Spt.Logging;
-using SPTarkov.Server.Core.Models.Utils;
+using Microsoft.Extensions.Logging;
+using Spectre.Console;
+using SPTarkov.Common.Models.Logging;
 
 namespace RaidOverhaulMain.Helpers;
 
@@ -8,7 +8,7 @@ public static class ROLogger
 {
     private const string LogPrefix = "[Raid Overhaul] ";
 
-    public static void Log<T>(ISptLogger<T> logger, string message, LogTextColor textColor = LogTextColor.White)
+    public static void Log<T>(ISptLogger<T> logger, string message, Color textColor = default)
     {
         logger.LogWithColor(LogPrefix + message, textColor);
     }
@@ -23,7 +23,7 @@ public static class ROLogger
 
     public static void LogInfo<T>(ISptLogger<T> logger, string message)
     {
-        if (logger.IsLogEnabled(LogLevel.Info))
+        if (logger.IsLogEnabled(LogLevel.Information))
         {
             logger.Info(LogPrefix + message);
         }
@@ -31,7 +31,7 @@ public static class ROLogger
 
     public static void LogWarning<T>(ISptLogger<T> logger, string message)
     {
-        if (logger.IsLogEnabled(LogLevel.Warn))
+        if (logger.IsLogEnabled(LogLevel.Warning))
         {
             logger.Warning(LogPrefix + message);
         }
@@ -45,7 +45,7 @@ public static class ROLogger
         }
     }
 
-    public static void LogToServer<T>(ISptLogger<T> logger, string message, LogTextColor textColor = LogTextColor.White)
+    public static void LogToServer<T>(ISptLogger<T> logger, string message, Color textColor = default)
     {
         logger.LogWithColor(LogPrefix + message, textColor);
     }

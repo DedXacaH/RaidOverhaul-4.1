@@ -1,15 +1,15 @@
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Utils.Cloners;
 
 namespace RaidOverhaulMain.Helpers;
 
 [Injectable(InjectionType.Singleton)]
-public class ROTraderHelper(ISptLogger<ROTraderHelper> logger, ICloner cloner, DatabaseService databaseService)
+public class ROTraderHelper(ISptLogger<ROTraderHelper> logger, ICloner cloner, LocaleTable localeTable, TradersTable tradersTable)
 {
     public void SetTraderUpdateTime(TraderConfig traderConfig, TraderBase baseJson, int refreshTimeSecondsMin, int refreshTimeSecondsMax)
     {
@@ -48,7 +48,7 @@ public class ROTraderHelper(ISptLogger<ROTraderHelper> logger, ICloner cloner, D
             Dialogue = [],
         };
 
-        if (!databaseService.GetTables().Traders.TryAdd(traderDetailsToAdd.Id, traderDataToAdd))
+        if (!tradersTable.TryAdd(traderDetailsToAdd.Id, traderDataToAdd))
         {
             ROLogger.LogWarning(logger, "Failed to add trader details to database");
         }
@@ -56,7 +56,7 @@ public class ROTraderHelper(ISptLogger<ROTraderHelper> logger, ICloner cloner, D
 
     public void AddTraderToLocales(TraderBase baseJson, string firstName, string description)
     {
-        var locales = databaseService.GetTables().Locales.Global;
+        var locales = localeTable.Global;
         var newTraderId = baseJson.Id;
         var fullName = baseJson.Name;
         var nickName = baseJson.Nickname;

@@ -1,23 +1,28 @@
 using RaidOverhaulMain.Models;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Items;
+using SPTarkov.Server.Core.Helpers.Profile;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Logging;
+using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Services.Items;
+using SPTarkov.Server.Core.Services.Locales;
+using SPTarkov.Server.Core.Services.Server;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
+using Color = Spectre.Console.Color;
 
 namespace RaidOverhaulMain.Helpers;
 
 [Injectable(InjectionType.Singleton)]
 public class ROAssortHelper(
     ISptLogger<ROAssortHelper> logger,
-    DatabaseService databaseService,
+    TradersTable tradersTable,
+    TemplateTable templateTable,
     LocaleService localeService,
     HandbookHelper handbookHelper,
     ItemHelper itemHelper,
@@ -25,21 +30,19 @@ public class ROAssortHelper(
     RandomUtil randomUtil,
     ItemFilterService itemFilterService,
     SeasonalEventService seasonalEventService,
-    ConfigServer configServer,
+    TraderConfig configServer,
     ROHelpers helpers,
     ROFluentTraderAssortHelper fluentAssortHelper,
     ICloner cloner
 )
 {
-    protected readonly TraderConfig TraderConfig = configServer.GetConfig<TraderConfig>();
-
     public void GenerateTraderAssorts(string traderId, DebugFile debugConfig)
     {
         var blockedSeasonalItems = seasonalEventService.GetInactiveSeasonalEventItems();
-        var baseTraderAssort = databaseService.GetTrader(traderId)?.Assort;
+        var baseTraderAssort = tradersTable.GetTrader(traderId)?.Assort;
         var defaultPresets = presetHelper.GetDefaultPresets().Values;
         var locales = localeService.GetLocaleDb();
-        var items = databaseService.GetItems();
+        var items = templateTable.Items;
 
         if (baseTraderAssort == null)
         {
@@ -90,7 +93,7 @@ public class ROAssortHelper(
 
                     if (debugConfig.DebugMode)
                     {
-                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", LogTextColor.Cyan);
+                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", Color.Cyan);
                     }
                 }
             }
@@ -103,7 +106,7 @@ public class ROAssortHelper(
 
                     if (debugConfig.DebugMode)
                     {
-                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", LogTextColor.Cyan);
+                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", Color.Cyan);
                     }
                 }
             }
@@ -122,7 +125,7 @@ public class ROAssortHelper(
 
                     if (debugConfig.DebugMode)
                     {
-                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", LogTextColor.Cyan);
+                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", Color.Cyan);
                     }
                 }
             }
@@ -135,7 +138,7 @@ public class ROAssortHelper(
 
                     if (debugConfig.DebugMode)
                     {
-                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", LogTextColor.Cyan);
+                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", Color.Cyan);
                     }
                 }
             }
@@ -148,7 +151,7 @@ public class ROAssortHelper(
 
                     if (debugConfig.DebugMode)
                     {
-                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", LogTextColor.Cyan);
+                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", Color.Cyan);
                     }
                 }
             }
@@ -161,7 +164,7 @@ public class ROAssortHelper(
 
                     if (debugConfig.DebugMode)
                     {
-                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", LogTextColor.Cyan);
+                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", Color.Cyan);
                     }
                 }
             }
@@ -179,7 +182,7 @@ public class ROAssortHelper(
 
                     if (debugConfig.DebugMode)
                     {
-                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", LogTextColor.Cyan);
+                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", Color.Cyan);
                     }
                 }
             }
@@ -192,7 +195,7 @@ public class ROAssortHelper(
 
                     if (debugConfig.DebugMode)
                     {
-                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", LogTextColor.Cyan);
+                        ROLogger.Log(logger, $"Finished adding item {locales[itemId + " Name"]} to the Req shop", Color.Cyan);
                     }
                 }
             }
@@ -233,7 +236,7 @@ public class ROAssortHelper(
 
                 if (debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, $"Finished adding preset {defaultPreset.Name} to the Req shop", LogTextColor.Cyan);
+                    ROLogger.Log(logger, $"Finished adding preset {defaultPreset.Name} to the Req shop", Color.Cyan);
                 }
             }
         }
@@ -241,7 +244,7 @@ public class ROAssortHelper(
 
     public void AddCustomItemsToTraderShop(string traderId, DebugFile debugConfig)
     {
-        var baseTraderAssort = databaseService.GetTrader(traderId)?.Assort;
+        var baseTraderAssort = tradersTable.GetTrader(traderId)?.Assort;
         var customPresets = DevModels.CustomPresetMaps;
 
         var reqCoins = helpers.FetchIdFromMap("ReqCoins", ClassMaps.CustomItemMap);
@@ -386,7 +389,7 @@ public class ROAssortHelper(
 
                 if (debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, $"Finished adding preset {customPreset.Name} to the Req shop", LogTextColor.Cyan);
+                    ROLogger.Log(logger, $"Finished adding preset {customPreset.Name} to the Req shop", Color.Cyan);
                 }
             }
         }

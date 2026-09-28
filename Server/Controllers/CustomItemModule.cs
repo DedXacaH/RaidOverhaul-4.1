@@ -1,27 +1,25 @@
 ﻿using System.Reflection;
 using RaidOverhaulMain.Helpers;
 using RaidOverhaulMain.Models;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Models.Logging;
 using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using WTTServerCommonLib.Services;
+using Color = Spectre.Console.Color;
 
 namespace RaidOverhaulMain.Controllers;
 
 [Injectable(InjectionType.Singleton)]
 public class ROCustomItems(
     ISptLogger<ROCustomItems> logger,
-    DatabaseService databaseService,
-    ConfigServer configServer,
+    TemplateTable templateTable,
+    RagfairConfig _ragfairConfig,
     WTTCustomItemServiceExtended wttItemService,
     WTTCustomRigLayoutService wttRigLayoutService,
     ROHelpers roHelpers
 )
 {
-    private readonly RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
     private readonly Assembly _assembly = Assembly.GetExecutingAssembly();
     private static ConfigFile _config = null!;
 
@@ -36,7 +34,7 @@ public class ROCustomItems(
         wttRigLayoutService.CreateRigLayouts(_assembly, "db/itemGen/customLayouts");
         ApplyFleaBlacklist();
         ApplyCasePushes();
-        ROLogger.Log(logger, "Custom Items finished loading", LogTextColor.Magenta);
+        ROLogger.Log(logger, "Custom Items finished loading", Color.Magenta);
     }
 
     private async Task LoadCustomItems()
@@ -54,7 +52,7 @@ public class ROCustomItems(
             if (roHelpers.CheckForMod(realismKey))
             {
                 await wttItemService.CreateCustomItems(_assembly, "db/itemGen/ammoRealism");
-                ROLogger.Log(logger, "Realism detected, modifying custom ammunition.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Realism detected, modifying custom ammunition.", Color.Magenta);
             }
             else if (!roHelpers.CheckForMod(realismKey))
             {
@@ -112,7 +110,7 @@ public class ROCustomItems(
 
     private void ApplyCasePushes()
     {
-        var items = databaseService.GetItems();
+        var items = templateTable.Items;
 
         var casePushMap = new Dictionary<string, string[]>
         {
@@ -174,8 +172,7 @@ public class ROCustomItems(
 
     private void BuildSlots()
     {
-        var tables = databaseService.GetTables();
-        var items = tables.Templates.Items;
+        var items = templateTable.Items;
         var aug = roHelpers.FetchIdFromMap("Aug762", ClassMaps.CustomItemMap);
         var stm46 = roHelpers.FetchIdFromMap("Stm46", ClassMaps.CustomItemMap);
         var mcm4 = roHelpers.FetchIdFromMap("Mcm4", ClassMaps.CustomItemMap);

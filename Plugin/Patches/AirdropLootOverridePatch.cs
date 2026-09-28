@@ -28,13 +28,13 @@ namespace RaidOverhaul.Patches
 
             if (EventController.PendingCorpseItems == null || EventController.PendingCorpseItems.Count == 0)
             {
-                Utils.LogToServerConsole("Corpse Cleanup: PendingCorpseItems is null or Count == 0.");
+                Helpers.Utils.LogToServerConsole("Corpse Cleanup: PendingCorpseItems is null or Count == 0.");
                 return;
             }
 
             if (item is not CompoundItem root || root.Grids == null)
             {
-                Utils.LogToServerConsole("Corpse Cleanup: airdrop item has no grids.");
+                Helpers.Utils.LogToServerConsole("Corpse Cleanup: airdrop item has no grids.");
                 return;
             }
 
@@ -83,7 +83,7 @@ namespace RaidOverhaul.Patches
                 }
             }
 
-            Utils.LogToServerConsole("Corpse Cleanup: AirdropLootOverridePatch endpoint hit.");
+            Helpers.Utils.LogToServerConsole("Corpse Cleanup: AirdropLootOverridePatch endpoint hit.");
             EventController.PendingCorpseItems = remaining;
         }
     }

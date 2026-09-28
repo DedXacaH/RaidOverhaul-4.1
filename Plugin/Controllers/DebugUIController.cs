@@ -286,7 +286,7 @@ namespace RaidOverhaul.Controllers
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
 
-                if (!Utils.IsInRaid())
+                if (!Helpers.Utils.IsInRaid())
                 {
                     CloseMenu();
                     return;
@@ -299,7 +299,7 @@ namespace RaidOverhaul.Controllers
                 }
             }
 
-            if (!Utils.IsInRaid())
+            if (!Helpers.Utils.IsInRaid())
             {
                 return;
             }
@@ -554,7 +554,7 @@ namespace RaidOverhaul.Controllers
             _spawnBossButton.onClick.AddListener(() =>
             {
                 PlayClick();
-                Utils.SpawnBoss(_bossSpawnConfigs[_bossDropdown.value]);
+                Helpers.Utils.SpawnBoss(_bossSpawnConfigs[_bossDropdown.value]);
             });
         }
 
@@ -574,7 +574,7 @@ namespace RaidOverhaul.Controllers
             foreach (var weapon in weapons)
             {
                 _log.LogInfo($"Template ID: {weapon.TemplateId}, locale name: {weapon.LocalizedName()}");
-                Utils.LogToServerConsole($"Template ID: {weapon.TemplateId}, locale name: {weapon.LocalizedName()}");
+                Helpers.Utils.LogToServerConsole($"Template ID: {weapon.TemplateId}, locale name: {weapon.LocalizedName()}");
             }
         }
 
@@ -586,7 +586,7 @@ namespace RaidOverhaul.Controllers
             foreach (var item in items)
             {
                 _log.LogInfo($"Template ID: {item.TemplateId}, locale name: {item.LocalizedName()}");
-                Utils.LogToServerConsole($"Template ID: {item.TemplateId}, locale name: {item.LocalizedName()}");
+                Helpers.Utils.LogToServerConsole($"Template ID: {item.TemplateId}, locale name: {item.LocalizedName()}");
             }
         }
     }

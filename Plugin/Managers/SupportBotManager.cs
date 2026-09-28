@@ -147,7 +147,7 @@ namespace RaidOverhaul.Managers
             }
 
             _preExistingBotIds.Clear();
-            foreach (var b in spawner.Bots.BotOwners)
+            foreach (var b in spawner._bots._botOwners)
             {
                 _preExistingBotIds.Add(b.GetInstanceID());
             }

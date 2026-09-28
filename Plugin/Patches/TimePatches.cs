@@ -105,7 +105,7 @@ namespace RaidOverhaul.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(LocationConditionsPanel), nameof(LocationConditionsPanel.method_1));
+            return AccessTools.Method(typeof(LocationConditionsPanel), nameof(LocationConditionsPanel.SelectedDateTime));
         }
 
         [PatchPostfix]
@@ -224,7 +224,7 @@ namespace RaidOverhaul.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.PropertyGetter(typeof(Watch), nameof(Watch.DateTime_0));
+            return AccessTools.PropertyGetter(typeof(Watch), nameof(Watch.GetCurrentLocationTime));
         }
 
         [PatchPostfix]
@@ -238,7 +238,7 @@ namespace RaidOverhaul.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.PropertyGetter(typeof(LocationTimeUIPanel), nameof(LocationTimeUIPanel.DateTime_0));
+            return AccessTools.PropertyGetter(typeof(LocationTimeUIPanel), nameof(LocationTimeUIPanel.GetCurrentTime));
         }
 
         [PatchPostfix]

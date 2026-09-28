@@ -1,14 +1,13 @@
 ﻿using RaidOverhaulMain.Helpers;
 using RaidOverhaulMain.Models;
+using Spectre.Console;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Models.Logging;
 using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Utils;
 
 namespace RaidOverhaulMain.Controllers;
@@ -16,16 +15,19 @@ namespace RaidOverhaulMain.Controllers;
 [Injectable(InjectionType.Singleton)]
 public class RODbEdits(
     ISptLogger<RODbEdits> logger,
-    DatabaseService databaseService,
-    ConfigServer configServer,
+    GlobalTable globalTable,
+    LocationTable locationTable,
+    TemplateTable templateTable,
+    TradersTable tradersTable,
+    BotTable  botTable,
+    LostOnDeathConfig _lostOnDeathConfig,
+    LocationConfig _locationConfig,
+    WeatherConfig _weatherConfig,
+    RagfairConfig _ragfairConfig,
     ROHelpers roHelpers,
     RandomUtil randomUtil
 )
 {
-    private readonly LostOnDeathConfig _lostOnDeathConfig = configServer.GetConfig<LostOnDeathConfig>();
-    private readonly LocationConfig _locationConfig = configServer.GetConfig<LocationConfig>();
-    private readonly WeatherConfig _weatherConfig = configServer.GetConfig<WeatherConfig>();
-    private readonly RagfairConfig _ragfairConfig = configServer.GetConfig<RagfairConfig>();
     private ConfigFile _config = null!;
     private DebugFile _debugConfig = null!;
 
@@ -58,13 +60,13 @@ public class RODbEdits(
         {
             _weatherConfig.Acceleration = 1;
         }
-        ROLogger.Log(logger, "Database Edits finished loading", LogTextColor.Magenta);
+        ROLogger.Log(logger, "Database Edits finished loading", Color.Magenta);
     }
 
     private void RaidChanges()
     {
-        var globals = databaseService.GetGlobals().Configuration;
-        var locations = databaseService.GetLocations().GetDictionary();
+        var globals = globalTable.Configuration;
+        var locations = locationTable.GetDictionary();
 
         if (_config.EnableExtendedRaids)
         {
@@ -147,25 +149,25 @@ public class RODbEdits(
 
     private void WeightChanges()
     {
-        var globals = databaseService.GetGlobals().Configuration;
+        var globals = globalTable.Configuration;
 
         if (_config.WeightChangesEnabled)
         {
-            globals.Stamina.BaseOverweightLimits.X *= _config.WeightMultiplier;
-            globals.Stamina.BaseOverweightLimits.Y *= _config.WeightMultiplier;
-            globals.Stamina.WalkOverweightLimits.X *= _config.WeightMultiplier;
-            globals.Stamina.WalkOverweightLimits.Y *= _config.WeightMultiplier;
-            globals.Stamina.WalkSpeedOverweightLimits.X *= _config.WeightMultiplier;
-            globals.Stamina.WalkSpeedOverweightLimits.Y *= _config.WeightMultiplier;
-            globals.Stamina.SprintOverweightLimits.X *= _config.WeightMultiplier;
-            globals.Stamina.SprintOverweightLimits.Y *= _config.WeightMultiplier;
-            globals.Inertia.InertiaLimits.Y *= _config.WeightMultiplier;
+            //globals.Stamina.BaseOverweightLimits.X *= _config.WeightMultiplier;
+            //globals.Stamina.BaseOverweightLimits.Y *= _config.WeightMultiplier;
+            //globals.Stamina.WalkOverweightLimits.X *= _config.WeightMultiplier;
+            //globals.Stamina.WalkOverweightLimits.Y *= _config.WeightMultiplier;
+            //globals.Stamina.WalkSpeedOverweightLimits.X *= _config.WeightMultiplier;
+            //globals.Stamina.WalkSpeedOverweightLimits.Y *= _config.WeightMultiplier;
+            //globals.Stamina.SprintOverweightLimits.X *= _config.WeightMultiplier;
+            //globals.Stamina.SprintOverweightLimits.Y *= _config.WeightMultiplier;
+            //globals.Inertia.InertiaLimits.Y *= _config.WeightMultiplier;
         }
     }
 
     private void LootChanges()
     {
-        var locations = databaseService.GetLocations().GetDictionary();
+        var locations = locationTable.GetDictionary();
 
         foreach (var (map, _) in _locationConfig.LooseLootMultiplier)
         {
@@ -189,9 +191,8 @@ public class RODbEdits(
 
     private void TraderTweaks()
     {
-        var tables = databaseService.GetTables();
-        var quests = tables.Templates.Quests;
-        var traders = tables.Traders;
+        var quests = templateTable.Quests;
+        var traders = tradersTable;
 
         if (_config.InsuranceChangesEnabled)
         {
@@ -238,7 +239,7 @@ public class RODbEdits(
 
     private void ModifyEnemyHealth()
     {
-        var botTypes = databaseService.GetBots().Types;
+        var botTypes = botTable.Types;
 
         foreach (var (_, botType) in botTypes)
         {
@@ -269,11 +270,10 @@ public class RODbEdits(
 
     private void ItemChanges()
     {
-        var tables = databaseService.GetTables();
-        var bots = databaseService.GetBots();
-        var items = tables.Templates.Items;
-        var pockets = tables.Templates.Items[roHelpers.FetchIdFromMap("POCKETS_SPECIAL", ClassMaps.AllItemList)];
-        var uhPockets = tables.Templates.Items[roHelpers.FetchIdFromMap("POCKETS_UNHEARD", ClassMaps.AllItemList)];
+        var bots = botTable;
+        var items = templateTable.Items;
+        var pockets = templateTable.Items[roHelpers.FetchIdFromMap("POCKETS_SPECIAL", ClassMaps.AllItemList)];
+        var uhPockets = templateTable.Items[roHelpers.FetchIdFromMap("POCKETS_UNHEARD", ClassMaps.AllItemList)];
 
         foreach (var (id, _) in items)
         {
@@ -484,8 +484,7 @@ public class RODbEdits(
 
     private void StackChanges()
     {
-        var tables = databaseService.GetTables();
-        var items = tables.Templates.Items;
+        var items = templateTable.Items;
 
         if (_config.AdvancedStackTuningEnabled && !_config.BasicStackTuningEnabled)
         {
@@ -533,7 +532,7 @@ public class RODbEdits(
         {
             logger.LogWithColor(
                 "Error multiplying your ammo stacks. Make sure you only have ONE of the Stack Tuning options enabled",
-                LogTextColor.Red
+                Color.Red
             );
         }
 
@@ -569,11 +568,11 @@ public class RODbEdits(
             {
                 if (
                     spawnpoint?.X > 180
-                    && spawnpoint.X < 185
-                    && spawnpoint.Y > 6
-                    && spawnpoint.Y < 7
-                    && spawnpoint.Z > 180
-                    && spawnpoint.Z < 185
+                    && spawnpoint?.X < 185
+                    && spawnpoint?.Y > 6
+                    && spawnpoint?.Y < 7
+                    && spawnpoint?.Z > 180
+                    && spawnpoint?.Z < 185
                 )
                 {
                     sp.Probability *= _config.MarkedRoomLootMultiplier;
@@ -584,11 +583,11 @@ public class RODbEdits(
             {
                 if (
                     spawnpoint?.X > -125
-                    && spawnpoint.X < -120
-                    && spawnpoint.Y > -15
-                    && spawnpoint.Y < -14
-                    && spawnpoint.Z > 25
-                    && spawnpoint.Z < 30
+                    && spawnpoint?.X < -120
+                    && spawnpoint?.Y > -15
+                    && spawnpoint?.Y < -14
+                    && spawnpoint?.Z > 25
+                    && spawnpoint?.Z < 30
                 )
                 {
                     sp.Probability *= _config.MarkedRoomLootMultiplier;
@@ -596,11 +595,11 @@ public class RODbEdits(
                 }
                 if (
                     spawnpoint?.X > -155
-                    && spawnpoint.X < -150
-                    && spawnpoint.Y > -9
-                    && spawnpoint.Y < -8
-                    && spawnpoint.Z > 70
-                    && spawnpoint.Z < 75
+                    && spawnpoint?.X < -150
+                    && spawnpoint?.Y > -9
+                    && spawnpoint?.Y < -8
+                    && spawnpoint?.Z > 70
+                    && spawnpoint?.Z < 75
                 )
                 {
                     sp.Probability *= _config.MarkedRoomLootMultiplier;
@@ -608,11 +607,11 @@ public class RODbEdits(
                 }
                 if (
                     spawnpoint?.X > 190
-                    && spawnpoint.X < 195
-                    && spawnpoint.Y > -6
-                    && spawnpoint.Y < -5
-                    && spawnpoint.Z > -230
-                    && spawnpoint.Z < -225
+                    && spawnpoint?.X < 195
+                    && spawnpoint?.Y > -6
+                    && spawnpoint?.Y < -5
+                    && spawnpoint?.Z > -230
+                    && spawnpoint?.Z < -225
                 )
                 {
                     sp.Probability *= _config.MarkedRoomLootMultiplier;
@@ -623,11 +622,11 @@ public class RODbEdits(
             {
                 if (
                     spawnpoint?.X > -133
-                    && spawnpoint.X < -129
-                    && spawnpoint.Y > 8.5
-                    && spawnpoint.Y < 11
-                    && spawnpoint.Z > 265
-                    && spawnpoint.Z < 275
+                    && spawnpoint?.X < -129
+                    && spawnpoint?.Y > 8.5
+                    && spawnpoint?.Y < 11
+                    && spawnpoint?.Z > 265
+                    && spawnpoint?.Z < 275
                 )
                 {
                     sp.Probability *= _config.MarkedRoomLootMultiplier;
@@ -635,11 +634,11 @@ public class RODbEdits(
                 }
                 if (
                     spawnpoint?.X > 186
-                    && spawnpoint.X < 191
-                    && spawnpoint.Y > -0.5
-                    && spawnpoint.Y < 1.5
-                    && spawnpoint.Z > 224
-                    && spawnpoint.Z < 229
+                    && spawnpoint?.X < 191
+                    && spawnpoint?.Y > -0.5
+                    && spawnpoint?.Y < 1.5
+                    && spawnpoint?.Z > 224
+                    && spawnpoint?.Z < 229
                 )
                 {
                     sp.Probability *= _config.MarkedRoomLootMultiplier;
@@ -650,11 +649,11 @@ public class RODbEdits(
             {
                 if (
                     spawnpoint?.X > 319
-                    && spawnpoint.X < 330
-                    && spawnpoint.Y > 5
-                    && spawnpoint.Y < 6.5
-                    && spawnpoint.Z > 482
-                    && spawnpoint.Z < 489
+                    && spawnpoint?.X < 330
+                    && spawnpoint?.Y > 5
+                    && spawnpoint?.Y < 6.5
+                    && spawnpoint?.Z > 482
+                    && spawnpoint?.Z < 489
                 )
                 {
                     sp.Probability *= _config.MarkedRoomLootMultiplier;
@@ -677,35 +676,35 @@ public class RODbEdits(
             if (weatherChance >= 1 && weatherChance <= 20)
             {
                 _weatherConfig.OverrideSeason = Season.SUMMER;
-                ROLogger.Log(logger, "Summer is active.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Summer is active.", Color.Magenta);
 
                 return;
             }
             if (weatherChance >= 21 && weatherChance <= 40)
             {
                 _weatherConfig.OverrideSeason = Season.AUTUMN;
-                ROLogger.Log(logger, "Autumn is active.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Autumn is active.", Color.Magenta);
 
                 return;
             }
             if (weatherChance >= 41 && weatherChance <= 60)
             {
                 _weatherConfig.OverrideSeason = Season.WINTER;
-                ROLogger.Log(logger, "Winter is coming.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Winter is coming.", Color.Magenta);
 
                 return;
             }
             if (weatherChance >= 61 && weatherChance <= 80)
             {
                 _weatherConfig.OverrideSeason = Season.SPRING;
-                ROLogger.Log(logger, "Spring is active.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Spring is active.", Color.Magenta);
 
                 return;
             }
             if (weatherChance >= 81 && weatherChance <= 100)
             {
                 _weatherConfig.OverrideSeason = Season.STORM;
-                ROLogger.Log(logger, "Storm is active.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Storm is active.", Color.Magenta);
             }
         }
         else if (roHelpers.HasConflictingWeatherOptions(_config))
@@ -713,7 +712,7 @@ public class RODbEdits(
             ROLogger.Log(
                 logger,
                 "Error modifying your weather. Make sure you only have ONE of the weather options enabled",
-                LogTextColor.Red
+                Color.Red
             );
         }
     }
@@ -727,28 +726,28 @@ public class RODbEdits(
             if (weatherChance >= 1 && weatherChance <= 25)
             {
                 _weatherConfig.OverrideSeason = Season.SUMMER;
-                ROLogger.Log(logger, "Summer is active.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Summer is active.", Color.Magenta);
 
                 return;
             }
             if (weatherChance >= 26 && weatherChance <= 50)
             {
                 _weatherConfig.OverrideSeason = Season.AUTUMN;
-                ROLogger.Log(logger, "Autumn is active.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Autumn is active.", Color.Magenta);
 
                 return;
             }
             if (weatherChance >= 51 && weatherChance <= 75)
             {
                 _weatherConfig.OverrideSeason = Season.SPRING;
-                ROLogger.Log(logger, "Spring is active.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Spring is active.", Color.Magenta);
 
                 return;
             }
             if (weatherChance >= 76 && weatherChance <= 100)
             {
                 _weatherConfig.OverrideSeason = Season.STORM;
-                ROLogger.Log(logger, "Storm is active.", LogTextColor.Magenta);
+                ROLogger.Log(logger, "Storm is active.", Color.Magenta);
 
                 return;
             }
@@ -759,7 +758,7 @@ public class RODbEdits(
             ROLogger.Log(
                 logger,
                 "Error modifying your weather. Make sure you only have ONE of the weather options enabled",
-                LogTextColor.Red
+                Color.Red
             );
         }
     }
@@ -769,7 +768,7 @@ public class RODbEdits(
         if (roHelpers.IsOnlyWeatherOption(_config.WinterWonderland, _config))
         {
             _weatherConfig.OverrideSeason = Season.WINTER;
-            ROLogger.Log(logger, "Snow is active. It's a whole fuckin' winter wonderland out there.", LogTextColor.Magenta);
+            ROLogger.Log(logger, "Snow is active. It's a whole fuckin' winter wonderland out there.", Color.Magenta);
 
             return;
         }
@@ -779,7 +778,7 @@ public class RODbEdits(
             ROLogger.Log(
                 logger,
                 "Error modifying your weather. Make sure you only have ONE of the weather options enabled",
-                LogTextColor.Red
+                Color.Red
             );
         }
     }
@@ -798,7 +797,7 @@ public class RODbEdits(
                 _weatherConfig.OverrideSeason = Season.SPRING;
                 if (_debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, "Spring is active.", LogTextColor.Magenta);
+                    ROLogger.Log(logger, "Spring is active.", Color.Magenta);
                 }
                 break;
             //Storm (handled client side)
@@ -808,7 +807,7 @@ public class RODbEdits(
                 raidsRun++;
                 if (_debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, "Storm is active.", LogTextColor.Magenta);
+                    ROLogger.Log(logger, "Storm is active.", Color.Magenta);
                 }
                 break;
             //Summer
@@ -819,7 +818,7 @@ public class RODbEdits(
                 _weatherConfig.OverrideSeason = Season.SUMMER;
                 if (_debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, "Summer is active.", LogTextColor.Magenta);
+                    ROLogger.Log(logger, "Summer is active.", Color.Magenta);
                 }
                 break;
             //Autumn
@@ -830,7 +829,7 @@ public class RODbEdits(
                 _weatherConfig.OverrideSeason = Season.AUTUMN;
                 if (_debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, "Autumn is active.", LogTextColor.Magenta);
+                    ROLogger.Log(logger, "Autumn is active.", Color.Magenta);
                 }
                 break;
             //Late Autumn
@@ -840,7 +839,7 @@ public class RODbEdits(
                 _weatherConfig.OverrideSeason = Season.AUTUMN_LATE;
                 if (_debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, "Autumn is active.", LogTextColor.Magenta);
+                    ROLogger.Log(logger, "Autumn is active.", Color.Magenta);
                 }
                 break;
             //Winter
@@ -852,7 +851,7 @@ public class RODbEdits(
                 _weatherConfig.OverrideSeason = Season.WINTER;
                 if (_debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, "Winter is coming.", LogTextColor.Magenta);
+                    ROLogger.Log(logger, "Winter is coming.", Color.Magenta);
                 }
                 break;
             //Default catch
@@ -861,13 +860,13 @@ public class RODbEdits(
                 raidsRun = 1;
                 if (_debugConfig.DebugMode)
                 {
-                    ROLogger.Log(logger, "Defaulting to spring.", LogTextColor.Magenta);
+                    ROLogger.Log(logger, "Defaulting to spring.", Color.Magenta);
                 }
                 break;
         }
         if (_debugConfig.DebugMode)
         {
-            ROLogger.Log(logger, $"Seasonal progress updated to {raidsRun}", LogTextColor.Cyan);
+            ROLogger.Log(logger, $"Seasonal progress updated to {raidsRun}", Color.Cyan);
         }
 
         progression.SeasonsProgression = raidsRun;

@@ -1,14 +1,13 @@
 ﻿using System.Reflection;
 using RaidOverhaulMain.Helpers;
 using RaidOverhaulMain.Models;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Logging;
 using SPTarkov.Server.Core.Models.Spt.Config;
-using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Routers;
-using SPTarkov.Server.Core.Servers;
+using Color = Spectre.Console.Color;
 using Path = System.IO.Path;
 
 namespace RaidOverhaulMain.Controllers;
@@ -16,7 +15,7 @@ namespace RaidOverhaulMain.Controllers;
 [Injectable(InjectionType.Singleton)]
 public class ROTrader(
     ISptLogger<ROTrader> logger,
-    ConfigServer configServer,
+    TraderConfig traderConfig,
     ModHelper helper,
     ImageRouter imageRouter,
     ROTraderHelper traderHelper,
@@ -25,7 +24,6 @@ public class ROTrader(
     ROHelpers helpers
 )
 {
-    private readonly TraderConfig _traderConfig = configServer.GetConfig<TraderConfig>();
     private readonly Assembly _assembly = Assembly.GetExecutingAssembly();
     private ConfigFile _config = null!;
     private DebugFile _debugConfig = null!;
@@ -55,7 +53,7 @@ public class ROTrader(
                     return;
                 }
                 imageRouter.AddRoute(traderBase.Avatar?.Replace(".jpg", "")!, traderImagePath);
-                traderHelper.SetTraderUpdateTime(_traderConfig, traderBase, 3600, 7200);
+                traderHelper.SetTraderUpdateTime(traderConfig, traderBase, 3600, 7200);
                 traderHelper.AddTraderWithEmptyAssortToDb(traderBase);
                 traderHelper.AddTraderToLocales(
                     traderBase,
@@ -76,7 +74,7 @@ public class ROTrader(
                     return;
                 }
                 imageRouter.AddRoute(traderBaseNoBoss.Avatar?.Replace(".jpg", "")!, traderImagePath);
-                traderHelper.SetTraderUpdateTime(_traderConfig, traderBase, 3600, 7200);
+                traderHelper.SetTraderUpdateTime(traderConfig, traderBase, 3600, 7200);
                 traderHelper.AddTraderWithEmptyAssortToDb(traderBaseNoBoss);
                 traderHelper.AddTraderToLocales(
                     traderBaseNoBoss,
@@ -90,12 +88,12 @@ public class ROTrader(
                 assortHelper.GenerateTraderAssorts(helpers.FetchIdFromMap("ReqShop", ClassMaps.TraderMaps), _debugConfig);
                 questHelper.CreateCustomQuests(questPathNoBoss);
             }
-            ROLogger.Log(logger, "Requisition Shop finished loading", LogTextColor.Magenta);
+            ROLogger.Log(logger, "Requisition Shop finished loading", Color.Magenta);
         }
         if (_config.EnableCustomItems && !_config.EnableRequisitionOffice)
         {
             assortHelper.AddCustomItemsToTraderShop(helpers.FetchIdFromMap("Peacekeeper", ClassMaps.TraderMaps), _debugConfig);
-            ROLogger.Log(logger, "Added custom items to Peacekeeper", LogTextColor.Magenta);
+            ROLogger.Log(logger, "Added custom items to Peacekeeper", Color.Magenta);
         }
 
         return;

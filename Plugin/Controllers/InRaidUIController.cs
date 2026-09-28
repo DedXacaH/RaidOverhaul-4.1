@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Comfort.Common;
+using Diz.LanguageExtensions;
 using EFT;
 using EFT.InventoryLogic;
 using RaidOverhaul.Fika;
@@ -93,7 +94,7 @@ namespace RaidOverhaul.Controllers
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
 
-                if (!ROPluginConfig.SpecialReqFeatures.Value || !Utils.IsInRaid())
+                if (!ROPluginConfig.SpecialReqFeatures.Value || !Helpers.Utils.IsInRaid())
                 {
                     CloseMenu();
                     return;
@@ -125,7 +126,7 @@ namespace RaidOverhaul.Controllers
                 }
             }
 
-            if (!ROPluginConfig.SpecialReqFeatures.Value || !Utils.IsInRaid())
+            if (!ROPluginConfig.SpecialReqFeatures.Value || !Helpers.Utils.IsInRaid())
             {
                 return;
             }
@@ -157,7 +158,7 @@ namespace RaidOverhaul.Controllers
         private int GetCurrencyCount(string currencyKey)
         {
             var session = GetSession();
-            if (!Utils.IsInRaid() || session?.Profile?.Inventory == null)
+            if (Helpers.Utils.IsInRaid() || session?.Profile?.Inventory == null)
             {
                 return 0;
             }
@@ -169,7 +170,7 @@ namespace RaidOverhaul.Controllers
                 return 0;
             }
 
-            var currencyId = Utils.Currency[currencyKey];
+            var currencyId = Helpers.Utils.Currency[currencyKey];
             var currencyItems = allItems.Where(item => item.TemplateId == currencyId);
 
             int totalCount = 0;
@@ -184,7 +185,7 @@ namespace RaidOverhaul.Controllers
 
         private bool IsTrainAvailable()
         {
-            if (!Utils.IsInRaid() || ROPlayer == null)
+            if (Helpers.Utils.IsInRaid() || ROPlayer == null)
             {
                 return false;
             }
@@ -202,7 +203,7 @@ namespace RaidOverhaul.Controllers
         private bool RemoveCurrency(string currencyKey, int amountToRemove)
         {
             var session = GetSession();
-            if (!Utils.IsInRaid() || session?.Profile?.Inventory == null)
+            if (Helpers.Utils.IsInRaid() || session?.Profile?.Inventory == null)
             {
                 return false;
             }
@@ -214,7 +215,7 @@ namespace RaidOverhaul.Controllers
                 return false;
             }
 
-            var currencyId = Utils.Currency[currencyKey];
+            var currencyId = Helpers.Utils.Currency[currencyKey];
             var currencyItems = allItems.Where(item => item.TemplateId == currencyId).ToList();
 
             if (currencyItems.Count == 0)
@@ -326,9 +327,9 @@ namespace RaidOverhaul.Controllers
 
         public bool RemoveZeroStackItem(Player player, Item item)
         {
-            TraderControllerClass inventoryController = player.InventoryController;
+            ItemController inventoryController = player.InventoryController;
 
-            GStruct154<GClass3408> result = InteractionsHandlerClass.Discard(item, inventoryController, simulate: false);
+            OperationResult<DiscardResult> result = ItemManipulator.Discard(item, inventoryController, simulate: false);
 
             if (result.Failed)
             {
@@ -668,7 +669,7 @@ namespace RaidOverhaul.Controllers
         {
             var items = new List<Item>();
 
-            if (!Utils.IsInRaid() || ROPlayer?.Profile?.Inventory == null)
+            if (Helpers.Utils.IsInRaid() || ROPlayer?.Profile?.Inventory == null)
             {
                 return items;
             }
@@ -752,14 +753,14 @@ namespace RaidOverhaul.Controllers
                     return;
                 }
 
-                var flattenedItems = Singleton<ItemFactoryClass>.Instance.TreeToFlatItems(itemsToTransfer);
+                var flattenedItems = Singleton<ItemFactory>.Instance.TreeToFlatItems(itemsToTransfer);
 
                 RequestHandler.PutJson(
                     "/RaidOverhaul/TransferItemRequests",
                     new
                     {
                         items = flattenedItems,
-                        traderId = Utils.Traders.TryGetValue("ReqShop", out var tId) ? tId : null,
+                        traderId = Helpers.Utils.Traders.TryGetValue("ReqShop", out var tId) ? tId : null,
                         message = GetResponseMessage(),
                     }.ToJson(null)
                 );

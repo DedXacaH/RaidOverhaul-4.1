@@ -10,7 +10,6 @@ using Fika.Core.Networking;
 using Fika.Core.Networking.LiteNetLib;
 using HarmonyLib;
 using RaidOverhaul.FikaModule.Packets;
-using RaidOverhaul.Helpers;
 using RaidOverhaul.Managers;
 using UnityEngine;
 
@@ -160,79 +159,79 @@ namespace RaidOverhaul.FikaModule.Components
         {
             switch (packet.EventToRun)
             {
-                case Utils.Heal:
+                case Helpers.Utils.Heal:
                     Plugin.GetEventController()?.DoHealPlayer();
                     break;
-                case Utils.Damage:
+                case Helpers.Utils.Damage:
                     Plugin.GetEventController()?.DoDamageEvent();
                     break;
-                case Utils.Repair:
+                case Helpers.Utils.Repair:
                     Plugin.GetEventController()?.DoArmorRepair();
                     break;
-                case Utils.Airdrop:
-                    NotificationManagerClass.DisplayMessageNotification(
+                case Helpers.Utils.Airdrop:
+                    NotificationManager.DisplayMessageNotification(
                         "Aidrop Event: Incoming Airdrop!",
                         ENotificationDurationType.Long,
                         ENotificationIconType.Quest
                     );
                     break;
-                case Utils.Jokes:
+                case Helpers.Utils.Jokes:
                     Plugin.GetEventController()?.DoFunnyWrapper();
                     break;
-                case Utils.Blackout:
+                case Helpers.Utils.Blackout:
                     Plugin.GetEventController()?.DoBlackoutEventWrapper();
                     break;
-                case Utils.Skill:
+                case Helpers.Utils.Skill:
                     Plugin.GetEventController()?.DoSkillEvent();
                     break;
-                case Utils.Metabolism:
+                case Helpers.Utils.Metabolism:
                     Plugin.GetEventController()?.DoMetabolismEvent();
                     break;
-                case Utils.Malf:
+                case Helpers.Utils.Malf:
                     Plugin.GetEventController()?.DoMalfEventWrapper();
                     break;
-                case Utils.LoyaltyLevel:
+                case Helpers.Utils.LoyaltyLevel:
                     Plugin.GetEventController()?.DoLLEvent();
                     break;
-                case Utils.Berserk:
+                case Helpers.Utils.Berserk:
                     Plugin.GetEventController()?.DoBerserkEventWrapper();
                     break;
-                case Utils.Weight:
+                case Helpers.Utils.Weight:
                     Plugin.GetEventController()?.DoWeightEventWrapper();
                     break;
-                case Utils.MaxLoyaltyLevel:
+                case Helpers.Utils.MaxLoyaltyLevel:
                     Plugin.GetEventController()?.DoMaxLLEvent();
                     break;
-                case Utils.CorrectRep:
+                case Helpers.Utils.CorrectRep:
                     Plugin.GetEventController()?.CorrectRep();
                     break;
-                case Utils.Lockdown:
+                case Helpers.Utils.Lockdown:
                     Plugin.GetEventController()?.DoLockDownEventWrapper();
                     break;
-                case Utils.GearExfilEvent:
-                    NotificationManagerClass.DisplayMessageNotification(
+                case Helpers.Utils.GearExfilEvent:
+                    NotificationManager.DisplayMessageNotification(
                         "Gear Exfil Event: Host has activated the gear exfil event. \nHunker down and protect them until their gear is safely locked away.",
                         ENotificationDurationType.Long,
                         ENotificationIconType.Quest
                     );
                     break;
-                case Utils.Train:
+                case Helpers.Utils.Train:
                     Plugin.GetEventController()?.RunTrainWrapper();
                     break;
-                case Utils.PmcExfil:
+                case Helpers.Utils.PmcExfil:
                     Plugin.GetEventController()?.DoPmcExfilEventWrapper();
                     break;
-                case Utils.Artillery:
+                case Helpers.Utils.Artillery:
                     Plugin.GetEventController()?.DoArtyEventWrapper();
                     break;
-                case Utils.Hunted:
-                    NotificationManagerClass.DisplayMessageNotification(
+                case Helpers.Utils.Hunted:
+                    NotificationManager.DisplayMessageNotification(
                         "You have been marked. Every hostile in the raid is now hunting you down.",
                         ENotificationDurationType.Long,
                         ENotificationIconType.Alert
                     );
                     break;
-                case Utils.ExfilNow:
+                case Helpers.Utils.ExfilNow:
                     Plugin.GetEventController()?.ExfilNow();
                     break;
             }

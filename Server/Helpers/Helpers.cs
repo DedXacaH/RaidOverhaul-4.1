@@ -1,14 +1,16 @@
 using System.Reflection;
 using RaidOverhaulMain.Models;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Items;
+using SPTarkov.Server.Core.Helpers.Profile;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Common;
-using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Logging;
+using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Mod;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Services.Locales;
 using SPTarkov.Server.Core.Utils;
 using Path = System.IO.Path;
 
@@ -17,7 +19,7 @@ namespace RaidOverhaulMain.Helpers;
 [Injectable(InjectionType.Singleton)]
 public class ROHelpers(
     ISptLogger<ROHelpers> logger,
-    DatabaseService databaseService,
+    TemplateTable templateTable,
     LocaleService localeService,
     IReadOnlyList<SptMod> sptModsList,
     PresetHelper presetHelper,
@@ -50,8 +52,7 @@ public class ROHelpers(
 
     public HandbookItem? GetItemInHandbook(string itemId)
     {
-        var tables = databaseService.GetTables();
-        var hbItem = tables.Templates.Handbook.Items.SingleOrDefault(x => x.Id == itemId);
+        var hbItem = templateTable.Handbook.Items.SingleOrDefault(x => x.Id == itemId);
 
         return hbItem;
     }
@@ -79,8 +80,7 @@ public class ROHelpers(
 
     public void AddToCases(string[] casesToAdd, MongoId itemToAdd)
     {
-        var tables = databaseService.GetTables();
-        var items = tables.Templates.Items;
+        var items = templateTable.Items;
 
         foreach (var cases in casesToAdd)
         {
@@ -101,8 +101,7 @@ public class ROHelpers(
 
     public void ModifyContainerSize(MongoId containerToModify, int horizontal, int vertical)
     {
-        var tables = databaseService.GetTables();
-        var items = tables.Templates.Items;
+        var items = templateTable.Items;
 
         if (!items.TryGetValue(containerToModify, out var container))
         {
@@ -187,7 +186,7 @@ public class ROHelpers(
         var dumpedDataPath = Path.Combine("db", "devFiles", "dumpedData");
         var itemMap = new SortedDictionary<string, MongoId>();
         var presetMap = new SortedDictionary<string, Preset>();
-        var items = databaseService.GetItems();
+        var items = templateTable.Items;
         var locales = localeService.GetLocaleDb();
         var defaultPresets = presetHelper.GetAllPresets();
 
@@ -204,7 +203,7 @@ public class ROHelpers(
             }
             catch (Exception ex)
             {
-                ROLogger.Log(logger, $"Error adding item {itemId} to item map => " + ex, LogTextColor.Yellow);
+                ROLogger.Log(logger, $"Error adding item {itemId} to item map => " + ex, Spectre.Console.Color.Yellow);
                 continue;
             }
         }
@@ -217,7 +216,7 @@ public class ROHelpers(
             }
             catch (Exception ex)
             {
-                ROLogger.Log(logger, $"Error adding preset {defaultPreset.Name} to preset map => " + ex, LogTextColor.Yellow);
+                ROLogger.Log(logger, $"Error adding preset {defaultPreset.Name} to preset map => " + ex, Spectre.Console.Color.Yellow);
                 continue;
             }
         }

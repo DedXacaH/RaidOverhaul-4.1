@@ -1,12 +1,11 @@
 using System.Reflection;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Spt.Server;
-using SPTarkov.Server.Core.Models.Utils;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Routers;
-using SPTarkov.Server.Core.Services;
 using Path = System.IO.Path;
 
 namespace RaidOverhaulMain.Helpers;
@@ -14,7 +13,8 @@ namespace RaidOverhaulMain.Helpers;
 [Injectable(InjectionType.Singleton)]
 public class ROQuestHelper(
     ISptLogger<ROQuestHelper> logger,
-    DatabaseService databaseService,
+    LocaleTable localeTable,
+    TemplateTable templateTable,
     ImageRouter imageRouter,
     ModHelper modHelper,
     ROJsonHelper jsonHelper
@@ -26,24 +26,23 @@ public class ROQuestHelper(
     {
         var modPath = modHelper.GetAbsolutePathToModFolder(_assembly);
         var questDirectory = Path.Combine(modPath, questPath);
-        var tables = databaseService.GetTables();
         var questFiles = jsonHelper.LoadCombinedQuestJsons(Path.Combine(questDirectory, "quests"));
         var imageFiles = Directory.GetFiles(Path.Combine(questDirectory, "pics")).ToList();
         var questLocales = Path.Combine(questDirectory, "locales");
 
-        LoadQuestData(questFiles, tables);
-        LoadQuestLocales(questLocales, tables);
+        LoadQuestData(questFiles, templateTable);
+        LoadQuestLocales(questLocales, localeTable);
         LoadQuestImgs(imageFiles);
     }
 
-    private void LoadQuestData(List<Dictionary<MongoId, Quest>> questFiles, DatabaseTables tables)
+    private void LoadQuestData(List<Dictionary<MongoId, Quest>> questFiles, TemplateTable questTable)
     {
         var questCount = 0;
         foreach (var file in questFiles)
         {
             foreach (var (key, quest) in file)
             {
-                tables.Templates.Quests[key] = quest;
+                questTable.Quests[key] = quest;
                 questCount++;
             }
         }
@@ -51,7 +50,7 @@ public class ROQuestHelper(
         ROLogger.LogDebug(logger, $"Successfully loaded {questCount} quests");
     }
 
-    private void LoadQuestLocales(string localesPath, DatabaseTables tables)
+    private void LoadQuestLocales(string localesPath, LocaleTable localesTable)
     {
         var locales = jsonHelper.LoadCombinedLocaleJsons(localesPath);
         var fallback = locales.TryGetValue("en", out var englishLocales) ? englishLocales : locales.Values.FirstOrDefault();
@@ -61,7 +60,7 @@ public class ROQuestHelper(
             return;
         }
 
-        foreach (var (localeCode, lazyLocale) in tables.Locales.Global)
+        foreach (var (localeCode, lazyLocale) in localesTable.Global)
         {
             lazyLocale.AddTransformer(localeData =>
             {

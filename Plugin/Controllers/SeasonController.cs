@@ -35,7 +35,7 @@ namespace RaidOverhaul.Controllers
         {
             var seasonalProgression = ConfigController.ServerConfig.SeasonalProgression;
             var seasonConfig = ConfigController.SeasonConfig;
-            var isReady = Utils.IsInRaid();
+            var isReady = Helpers.Utils.IsInRaid();
 
             if (!seasonalProgression || !isReady)
             {

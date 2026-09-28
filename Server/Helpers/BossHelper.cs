@@ -1,15 +1,15 @@
 using RaidOverhaulMain.Models;
+using Spectre.Console;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Eft.Common;
-using SPTarkov.Server.Core.Models.Logging;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Utils;
 
 namespace RaidOverhaulMain.Helpers;
 
 [Injectable(InjectionType.Singleton)]
-public class ROBossHelper(ISptLogger<ROBossHelper> logger, DatabaseService databaseService, RandomUtil randomUtil)
+public class ROBossHelper(ISptLogger<ROBossHelper> logger, LocationTable locationTable, RandomUtil randomUtil)
 {
     private DebugFile _debugConfig = null!;
 
@@ -39,7 +39,7 @@ public class ROBossHelper(ISptLogger<ROBossHelper> logger, DatabaseService datab
     {
         try
         {
-            var locations = databaseService.GetLocations();
+            var locations = locationTable;
 
             foreach (var (map, zones) in _mapData)
             {
@@ -57,7 +57,7 @@ public class ROBossHelper(ISptLogger<ROBossHelper> logger, DatabaseService datab
         }
         catch (Exception ex)
         {
-            ROLogger.Log(logger, $"Error adjusting Legion spawns: {ex.Message}", LogTextColor.Red);
+            ROLogger.Log(logger, $"Error adjusting Legion spawns: {ex.Message}", Color.Red);
             throw;
         }
     }

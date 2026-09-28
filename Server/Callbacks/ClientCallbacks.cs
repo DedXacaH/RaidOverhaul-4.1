@@ -1,12 +1,14 @@
 ﻿using RaidOverhaulMain.Helpers;
 using RaidOverhaulMain.Models;
+using Spectre.Console;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Extensions;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Models.Logging;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Services.Commerce;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Cloners;
 
@@ -42,7 +44,7 @@ public class LogToServerRequestCallbacks(HttpResponseUtil httpResponseUtil)
 {
     public virtual ValueTask<string> LogToServer<T>(LogToServerRequestData request, ISptLogger<T> logger)
     {
-        ROLogger.LogToServer(logger, request.Message ?? string.Empty, LogTextColor.Cyan);
+        ROLogger.LogToServer(logger, request.Message ?? string.Empty, Color.Cyan);
 
         return new ValueTask<string>(httpResponseUtil.NullResponse());
     }

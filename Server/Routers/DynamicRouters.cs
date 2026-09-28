@@ -3,10 +3,11 @@ using RaidOverhaulMain.Models;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Callbacks;
 using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Items;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Enums;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Utils;
 
 namespace RaidOverhaulMain.Routers;
@@ -17,7 +18,7 @@ public class ROTraderDynamicRouter(
     RandomUtil randomUtil,
     ItemHelper itemHelper,
     TraderCallbacks traderCallbacks,
-    DatabaseService databaseService,
+    TradersTable tradersTable,
     ROHelpers helpers
 )
     : DynamicRouter(
@@ -25,10 +26,10 @@ public class ROTraderDynamicRouter(
         [
             new RouteAction(
                 "/client/trading/api/getTraderAssort/66f4db5ca4958508883d700c",
-                async (url, info, sessionId, _) =>
+                async (url, info, sessionId, _, _) =>
                 {
                     var traderId = helpers.FetchIdFromMap("ReqShop", ClassMaps.TraderMaps);
-                    var trader = databaseService.GetTrader(traderId);
+                    var trader = tradersTable.GetTrader(traderId);
 
                     if (trader == null)
                     {

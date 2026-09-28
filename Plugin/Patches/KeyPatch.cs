@@ -4,6 +4,8 @@ using System.Reflection;
 using Comfort.Common;
 using EFT;
 using EFT.Interactive;
+using EFT.InventoryLogic;
+using EFT.UI;
 using HarmonyLib;
 using RaidOverhaul.Helpers;
 using SPT.Reflection.Patching;
@@ -14,22 +16,22 @@ namespace RaidOverhaul.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(GetActionsClass), nameof(GetActionsClass.smethod_14));
+            return AccessTools.Method(typeof(InteractionContextHelper), nameof(InteractionContextHelper.CG_TryAddUnlock));
         }
 
         [PatchPostfix]
-        public static void Postfix(ref ActionsReturnClass __result, GamePlayerOwner owner, Door door)
+        public static void Postfix(ref AvailableInteractionState __result, GamePlayerOwner owner, Door door)
         {
             if (door.DoorState != EDoorState.Locked)
             {
                 return;
             }
 
-            var doorUnlockClass = new GetActionsClass.Class1780 { owner = owner, worldInteractiveObject = door };
+            var doorUnlockClass = new InteractionContextHelper.CG_TryAddUnlock { owner = owner, worldInteractiveObject = door };
 
             if (__result?.Actions != null)
             {
-                if (!HasKey(Utils.SkeletonKey))
+                if (!HasKey(Helpers.Utils.SkeletonKey))
                 {
                     return;
                 }
@@ -42,14 +44,14 @@ namespace RaidOverhaul.Patches
 
                 __result.Actions.Insert(
                     position,
-                    new ActionsTypesClass
+                    new InteractionAction
                     {
                         Name = "Unlock With Skeleton Key",
 
                         Action = new Action(() =>
                         {
                             var originalKey = door.KeyId;
-                            door.KeyId = Utils.SkeletonKey;
+                            door.KeyId = Helpers.Utils.SkeletonKey;
                             doorUnlockClass.key = owner.GetKey(door);
                             doorUnlockClass.method_0();
                             door.KeyId = originalKey;

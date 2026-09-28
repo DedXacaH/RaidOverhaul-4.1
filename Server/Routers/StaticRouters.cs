@@ -4,17 +4,20 @@ using RaidOverhaulMain.Callbacks;
 using RaidOverhaulMain.Controllers;
 using RaidOverhaulMain.Helpers;
 using RaidOverhaulMain.Models;
+using Spectre.Console;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Extensions;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Profile;
+using SPTarkov.Server.Core.Helpers.Server;
+using SPTarkov.Server.Core.Helpers.Traders;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Match;
 using SPTarkov.Server.Core.Models.Enums;
-using SPTarkov.Server.Core.Models.Logging;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Services.Profile;
 using SPTarkov.Server.Core.Utils;
 using Path = System.IO.Path;
 
@@ -28,7 +31,7 @@ public class ROStaticRouter : StaticRouter
     private static DebugFile _debugConfig = null!;
     private static EventsConfigFile _eventsConfig = null!;
     private static RODbEdits _dbController = null!;
-    private static DatabaseService _databaseService = null!;
+    private static TradersTable _tradersTable = null!;
     private static ROHelpers _helpers = null!;
     private static ROBossHelper _bossHelper = null!;
     private static ModHelper _modHelper = null!;
@@ -44,7 +47,7 @@ public class ROStaticRouter : StaticRouter
         JsonUtil jsonUtil,
         TraderHelper traderHelper,
         ProfileHelper profileHelper,
-        DatabaseService databaseService,
+        TradersTable tradersTable,
         ModHelper modHelper,
         ROHelpers helper,
         ROBossHelper bossHelper,
@@ -59,7 +62,7 @@ public class ROStaticRouter : StaticRouter
         _profileHelper = profileHelper;
         _bossHelper = bossHelper;
         _dbController = dbController;
-        _databaseService = databaseService;
+        _tradersTable = tradersTable;
         _modHelper = modHelper;
         _traderHelper = traderHelper;
         _profileActivityService = profileActivityService;
@@ -79,36 +82,36 @@ public class ROStaticRouter : StaticRouter
     {
         return
         [
-            new RouteAction<EmptyRequestData>("/RaidOverhaul/GetEventConfig", async (_, _, _, _) => await HandleRoute(_eventsConfig)),
-            new RouteAction<EmptyRequestData>("/RaidOverhaul/GetServerConfig", async (_, _, _, _) => await HandleRoute(_config)),
-            new RouteAction<EmptyRequestData>("/RaidOverhaul/GetDebugConfig", async (_, _, _, _) => await HandleRoute(_debugConfig)),
+            new RouteAction<EmptyRequestData>("/RaidOverhaul/GetEventConfig", async (_, _, _, _, _) => await HandleRoute(_eventsConfig)),
+            new RouteAction<EmptyRequestData>("/RaidOverhaul/GetServerConfig", async (_, _, _, _, _) => await HandleRoute(_config)),
+            new RouteAction<EmptyRequestData>("/RaidOverhaul/GetDebugConfig", async (_, _, _, _, _) => await HandleRoute(_debugConfig)),
             new RouteAction<EmptyRequestData>(
                 "/RaidOverhaul/GetWeatherConfig",
-                async (_, _, sessionId, _) => await HandleGetSeasonProgression(sessionId)
+                async (_, _, sessionId, _, _) => await HandleGetSeasonProgression(sessionId)
             ),
             new RouteAction<EmptyRequestData>(
                 "/RaidOverhaul/GetLegionConfig",
-                async (_, _, sessionId, _) => await HandleGetLegionProgression(sessionId)
+                async (_, _, sessionId, _, _) => await HandleGetLegionProgression(sessionId)
             ),
             new RouteAction<LogToServerRequestData>(
                 "/RaidOverhaul/LogToServer",
-                async (_, info, _, _) => await _serverLogCallbacks.LogToServer(info, _logger)
+                async (_, info, _, _, _) => await _serverLogCallbacks.LogToServer(info, _logger)
             ),
             new RouteAction<TransferRequestData>(
                 "/RaidOverhaul/TransferItemRequests",
-                async (_, info, sessionId, _) => await _transferRequestCallbacks.ReceiveAndSendItems(info, sessionId)
+                async (_, info, sessionId, _, _) => await _transferRequestCallbacks.ReceiveAndSendItems(info, sessionId)
             ),
             new RouteAction<GetRaidConfigurationRequestData>(
                 "/client/raid/configuration",
-                async (_, info, sessionId, output) => await HandleRaidConfiguration(info, sessionId, output)
+                async (_, info, sessionId, output, _) => await HandleRaidConfiguration(info, sessionId, output)
             ),
             new RouteAction<StartLocalRaidRequestData>(
                 "/client/match/local/start",
-                async (_, _, _, output) => await HandleStandardWeatherRoute(output)
+                async (_, _, _, output, _) => await HandleStandardWeatherRoute(output)
             ),
             new RouteAction<EndLocalRaidRequestData>(
                 "/client/match/local/end",
-                async (_, info, sessionId, output) => await HandleROProgression(info, sessionId, output)
+                async (_, info, sessionId, output, _) => await HandleROProgression(info, sessionId, output)
             ),
         ];
     }
@@ -202,7 +205,7 @@ public class ROStaticRouter : StaticRouter
                 ROLogger.Log(
                     _logger,
                     "Error modifying your weather. Make sure you only have ONE of the weather options enabled",
-                    LogTextColor.Red
+                    Color.Red
                 );
             }
         }
@@ -211,7 +214,7 @@ public class ROStaticRouter : StaticRouter
         {
             if (_config.Ll1Items)
             {
-                var trader = _databaseService.GetTrader(_helpers.FetchIdFromMap("ReqShop", ClassMaps.TraderMaps));
+                var trader = _tradersTable.GetTrader(_helpers.FetchIdFromMap("ReqShop", ClassMaps.TraderMaps));
                 var assortItems = trader?.Assort.LoyalLevelItems;
                 if (assortItems != null)
                 {
@@ -291,7 +294,7 @@ public class ROStaticRouter : StaticRouter
                 _traderHelper.AddStandingToTrader(sessionId, traderRepToModify, 0.03);
                 if (_debugConfig.DebugMode)
                 {
-                    ROLogger.Log(_logger, $"Raid survived. Increasing {traderRepToModify} Rep by 0.03", LogTextColor.Cyan);
+                    ROLogger.Log(_logger, $"Raid survived. Increasing {traderRepToModify} Rep by 0.03", Color.Cyan);
                 }
                 return;
             }

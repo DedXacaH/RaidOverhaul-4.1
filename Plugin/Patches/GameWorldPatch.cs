@@ -28,21 +28,21 @@ namespace RaidOverhaul.Patches
 
             if (ConfigController.ServerConfig.WeatherChangesEnabled && ConfigController.ServerConfig.SeasonalProgression)
             {
-                ConfigController.SeasonConfig = Utils.Get<SeasonalConfig>("/RaidOverhaul/GetWeatherConfig");
+                ConfigController.SeasonConfig = Helpers.Utils.Get<SeasonalConfig>("/RaidOverhaul/GetWeatherConfig");
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Seasonal progression config refreshed.");
+                    Helpers.Utils.LogToServerConsole("Seasonal progression config refreshed.");
                 }
             }
 
             if (ConfigController.ServerConfig.EnableCustomBoss && FikaBridge.AmHost())
             {
-                ConfigController.LegionConfig = Utils.Get<LegionProgressionConfig>("/RaidOverhaul/GetLegionConfig");
+                ConfigController.LegionConfig = Helpers.Utils.Get<LegionProgressionConfig>("/RaidOverhaul/GetLegionConfig");
 
                 __instance.gameObject.GetOrAddComponent<LegionGroupManager>();
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("LegionGroupManager successfully attached to GameWorld.");
+                    Helpers.Utils.LogToServerConsole("LegionGroupManager successfully attached to GameWorld.");
                 }
             }
 
@@ -51,7 +51,7 @@ namespace RaidOverhaul.Patches
                 __instance.gameObject.GetOrAddComponent<SupportBotManager>();
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("SupportBotManager successfully attached to GameWorld.");
+                    Helpers.Utils.LogToServerConsole("SupportBotManager successfully attached to GameWorld.");
                 }
             }
         }

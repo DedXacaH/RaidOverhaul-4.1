@@ -1,9 +1,9 @@
 using System.Reflection;
+using Diz.LanguageExtensions;
 using EFT;
 using EFT.Interactive;
 using EFT.InventoryLogic;
 using HarmonyLib;
-using RaidOverhaul.Helpers;
 using SPT.Reflection.Patching;
 
 namespace RaidOverhaul.Patches
@@ -17,7 +17,7 @@ namespace RaidOverhaul.Patches
 
         [PatchPrefix]
         private static bool PatchPrefix(
-            ref GStruct156<KeyInteractionResultClass> __result,
+            ref Option<UnlockResult> __result,
             KeyComponent key,
             Player player,
             KeycardDoor __instance
@@ -30,27 +30,27 @@ namespace RaidOverhaul.Patches
                 return false;
             }
 
-            var isAuthorized = key.Template.KeyId == __instance.KeyId || key.Template.KeyId == Utils.VipKeycard;
+            var isAuthorized = key.Template.KeyId == __instance.KeyId || key.Template.KeyId == Helpers.Utils.VipKeycard;
             if (!isAuthorized)
             {
-                __result = new KeyInteractionResultClass(key, null, false);
+                __result = new UnlockResult(key, null, false);
                 return false;
             }
 
             key.NumberOfUsages++;
             if (key.NumberOfUsages >= key.Template.MaximumNumberOfUsage && key.Template.MaximumNumberOfUsage > 0)
             {
-                var discardResult = InteractionsHandlerClass.Discard(key.Item, (TraderControllerClass)key.Item.Parent.GetOwner(), false);
+                var discardResult = ItemManipulator.Discard(key.Item, (ItemController)key.Item.Parent.GetOwner(), false);
 
                 if (discardResult.Failed)
                 {
                     __result = discardResult.Error;
                     return false;
                 }
-                __result = new KeyInteractionResultClass(key, discardResult.Value, true);
+                __result = new UnlockResult(key, discardResult.Value, true);
                 return false;
             }
-            __result = new KeyInteractionResultClass(key, null, true);
+            __result = new UnlockResult(key, null, true);
             return false;
         }
     }

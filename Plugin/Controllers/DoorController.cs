@@ -42,7 +42,7 @@ namespace RaidOverhaul.Controllers
 
         private void Update()
         {
-            _isReady = Utils.IsInRaid();
+            _isReady = Helpers.Utils.IsInRaid();
 
             if (!_isReady || !ROPluginConfig.EnableDoorEvents.Value)
             {
@@ -129,7 +129,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("A random switch has been thrown.");
+                    Helpers.Utils.LogToServerConsole("A random switch has been thrown.");
                 }
             }
 
@@ -154,7 +154,7 @@ namespace RaidOverhaul.Controllers
             var selection = _random.Next(_doorIndex);
             var door = _doors[selection];
 
-            if (door.gameObject.layer != LayerMaskClass.InteractiveLayer)
+            if (door.gameObject.layer != LayersMaskController.InteractiveLayer)
             {
                 if (ConfigController.DebugConfig.DebugMode)
                 {
@@ -171,7 +171,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("A random door has been unlocked.");
+                    Helpers.Utils.LogToServerConsole("A random door has been unlocked.");
                 }
             }
 
@@ -213,7 +213,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("A random keycard door has been unlocked.");
+                    Helpers.Utils.LogToServerConsole("A random keycard door has been unlocked.");
                 }
             }
 
@@ -236,7 +236,7 @@ namespace RaidOverhaul.Controllers
             }
 
             var doors = FindObjectsOfType<Door>();
-            var interactiveLayer = LayerMaskClass.InteractiveLayer;
+            var interactiveLayer = LayersMaskController.InteractiveLayer;
 
             foreach (var door in doors)
             {
@@ -294,7 +294,7 @@ namespace RaidOverhaul.Controllers
                 NotificationHelper.NotificationLength.Long,
                 NotificationHelper.NotificationColor.White
             );
-            Utils.LogToServerConsole(
+            Helpers.Utils.LogToServerConsole(
                 $"[{_doorChangedCount}] total Doors have had their states changed. [{_doorNotChangedCount}] haven't been modified."
             );
         }
@@ -329,7 +329,7 @@ namespace RaidOverhaul.Controllers
                 NotificationHelper.NotificationLength.Long,
                 NotificationHelper.NotificationColor.White
             );
-            Utils.LogToServerConsole($"[{_lampCount}] total Lamps have been modified.");
+            Helpers.Utils.LogToServerConsole($"[{_lampCount}] total Lamps have been modified.");
         }
         #endregion
     }

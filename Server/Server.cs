@@ -3,12 +3,12 @@ using RaidOverhaulMain.Controllers;
 using RaidOverhaulMain.Helpers;
 using RaidOverhaulMain.Models;
 using RaidOverhaulMain.Routers;
+using Spectre.Console;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Models.Eft.Common;
-using SPTarkov.Server.Core.Models.Logging;
 using SPTarkov.Server.Core.Models.Spt.Mod;
-using SPTarkov.Server.Core.Models.Utils;
 
 [assembly: AssemblyTitle("Raid Overhaul Server")]
 [assembly: AssemblyDescription("A large overhaul for raids including events, dead body clean up, and much more. Server component.")]
@@ -17,27 +17,27 @@ using SPTarkov.Server.Core.Models.Utils;
 
 namespace RaidOverhaulMain;
 
-public sealed record ModMetadata : AbstractModMetadata
+public sealed record ModMetadata : IModMetadata
 {
-    public override string ModGuid { get; init; } = "nameless.raidoverhaul.server";
-    public override string Name { get; init; } = "Raid Overhaul Server";
-    public override string Author { get; init; } = "nameless";
-    public override List<string>? Contributors { get; init; }
-    public override SemanticVersioning.Version Version { get; init; } = new("3.1.0");
-    public override SemanticVersioning.Range SptVersion { get; init; } = new("~4.0.0");
-    public override List<string>? Incompatibilities { get; init; }
-    public override Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; } =
+    public string ModGuid { get; init; } = "nameless.raidoverhaul.server";
+    public string Name { get; init; } = "Raid Overhaul Server";
+    public string Author { get; init; } = "nameless";
+    public List<string>? Contributors { get; init; }
+    public SemanticVersioning.Version Version { get; init; } = new("3.1.0");
+    public SemanticVersioning.Range SptVersion { get; init; } = new("~4.1.0");
+    public List<string>? Incompatibilities { get; init; }
+    public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; } =
         new()
         {
-            { "com.morebotsapi.tacticaltoaster", new SemanticVersioning.Range(">=2.0.0") },
-            { "com.wtt.commonlib", new SemanticVersioning.Range(">=2.0.20") },
+            { "com.morebotsapi.tacticaltoaster", new SemanticVersioning.Range(">=2.1.1") },
+            { "com.wtt.commonlib", new SemanticVersioning.Range(">=3.0.6") },
         };
-    public override string? Url { get; init; }
-    public override bool? IsBundleMod { get; init; } = true;
-    public override string License { get; init; } = "CC BY-NC-ND 4.0";
+    public string? Url { get; init; }
+    public string License { get; init; } = "CC BY-NC-ND 4.0";
+    public bool HasPrepatcher { get; init; } = false;
 }
 
-[Injectable(InjectionType = InjectionType.Singleton, TypePriority = OnLoadOrder.PostDBModLoader + 10)]
+[Injectable(InjectionType = InjectionType.Singleton, TypePriority = OnLoadOrder.Preload + 10)]
 public sealed class ROMain(
     ROStaticRouter roStaticRouter,
     ROCustomItems roCustomItems,
@@ -51,8 +51,10 @@ public sealed class ROMain(
     internal static ConfigFile Config { get; private set; } = null!;
     internal static DebugFile DebugConfig { get; private set; } = null!;
 
-    public async Task OnLoad()
+    public async Task OnLoadAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var assembly = Assembly.GetExecutingAssembly();
         var devFilesPath = Path.Combine("db", "devFiles");
         var hideoutCraftsPath = Path.Combine("db", "itemGen", "hideoutCrafts");
@@ -85,8 +87,10 @@ public sealed class ROMain(
 [Injectable(InjectionType = InjectionType.Singleton, TypePriority = MoreBotsServer.MoreBotsLoadOrder.LoadFactions)]
 public sealed class ROFactions(MoreBotsServer.Services.FactionService factionService) : IOnLoad
 {
-    public async Task OnLoad()
+    public async Task OnLoadAsync(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         factionService.Factions.Add("wolves", new Faction() { Name = "wolves", BotTypes = { (WildSpawnType)201, (WildSpawnType)202 } });
 
         if (ROMain.Config.EnableCustomBoss)
@@ -109,7 +113,7 @@ public sealed class ROBotLoader(
     ROBossHelper roBossHelper
 ) : IOnLoad
 {
-    public async Task OnLoad()
+    public async Task OnLoadAsync(CancellationToken cancellationToken)
     {
         var assembly = Assembly.GetExecutingAssembly();
         var botLoadouts = Path.Combine("db", "bots", "botLoadouts");
@@ -193,14 +197,14 @@ public sealed class ROBotLoader(
             }
 
             roBossHelper.SetBossSpawns(ROMain.Config.UseLegionGlobalSpawnChance ? ROMain.Config.GlobalSpawnChance : 5.0);
-            ROLogger.Log(logger, "Custom bots finished loading", LogTextColor.Magenta);
+            ROLogger.Log(logger, "Custom bots finished loading", Color.Magenta);
         }
         else
         {
             await commonLib.CustomLocaleService.CreateCustomLocales(assembly, Path.Combine("db", "locales", "bossDisabled"));
         }
 
-        ROLogger.Log(logger, "Raid Overhaul Finished Loaded", LogTextColor.Magenta);
+        ROLogger.Log(logger, "Raid Overhaul Finished Loaded", Color.Magenta);
 
         await Task.CompletedTask;
     }

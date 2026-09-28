@@ -14,7 +14,7 @@ namespace RaidOverhaul.Controllers
                 ? _bossDataPool[random.Next(_bossDataPool.Count)]
                 : _bossDataPoolNoLegion[random.Next(_bossDataPoolNoLegion.Count)];
 
-            Utils.SpawnBoss(bossConfig);
+            Helpers.Utils.SpawnBoss(bossConfig);
         }
 
         private static readonly List<BossInvasionConfig> _bossDataPool = new List<BossInvasionConfig>

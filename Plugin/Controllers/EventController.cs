@@ -6,6 +6,7 @@ using CommonAssets.Scripts.Game;
 using Cysharp.Threading.Tasks;
 using EFT;
 using EFT.Airdrop;
+using EFT.Ballistics;
 using EFT.HealthSystem;
 using EFT.Interactive;
 using EFT.InventoryLogic;
@@ -100,7 +101,7 @@ namespace RaidOverhaul.Controllers
 
         private static readonly System.Random SharedRandom = new System.Random();
 
-        public DamageInfoStruct Blunt { get; private set; }
+        public DamageInfo Blunt { get; private set; }
 
         private static readonly HashSet<string> _invalidAirdropLocations = new HashSet<string>
         {
@@ -150,7 +151,7 @@ namespace RaidOverhaul.Controllers
 
         private void Update()
         {
-            _isReady = Utils.IsInRaid();
+            _isReady = Helpers.Utils.IsInRaid();
 
             if (!_isReady || !ROPluginConfig.EnableEvents.Value)
             {
@@ -256,7 +257,7 @@ namespace RaidOverhaul.Controllers
                 ) * 60f
             );
 
-            if (Utils.IsInRaid() && FikaBridge.AmHost())
+            if (Helpers.Utils.IsInRaid() && FikaBridge.AmHost())
             {
                 Weighting.DoRandomEvent(Weighting.WeightedEvents);
             }
@@ -340,7 +341,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Heal);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Heal);
             }
 
             NotificationHelper.Show(
@@ -354,7 +355,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Heal Event has run");
+                Helpers.Utils.LogToServerConsole("Heal Event has run");
             }
         }
 
@@ -368,7 +369,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Damage);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Damage);
             }
 
             NotificationHelper.Show(
@@ -385,7 +386,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Heart Attack Event has run");
+                Helpers.Utils.LogToServerConsole("Heart Attack Event has run");
             }
         }
 
@@ -399,7 +400,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Repair);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Repair);
             }
 
             NotificationHelper.Show(
@@ -425,7 +426,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Armor Repair Event has run");
+                Helpers.Utils.LogToServerConsole("Armor Repair Event has run");
             }
         }
 
@@ -446,7 +447,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Aidrop Event has run");
+                    Helpers.Utils.LogToServerConsole("Aidrop Event has run");
                 }
             }
             else
@@ -461,7 +462,7 @@ namespace RaidOverhaul.Controllers
             {
                 if (FikaBridge.AmHost())
                 {
-                    FikaBridge.SendRandomEventPacket(Utils.Jokes);
+                    FikaBridge.SendRandomEventPacket(Helpers.Utils.Jokes);
                 }
 
                 NotificationHelper.Show(
@@ -524,7 +525,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Joke Event has run");
+                    Helpers.Utils.LogToServerConsole("Joke Event has run");
                 }
 
                 _jokeEventHasRun = true;
@@ -546,7 +547,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Blackout);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Blackout);
             }
 
             _blackoutEventHasRun = true;
@@ -597,7 +598,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Blackout Event: All power switches and lights disabled for 10 minutes");
+                Helpers.Utils.LogToServerConsole("Blackout Event: All power switches and lights disabled for 10 minutes");
             }
 
             await UniTask.WaitForSeconds(600);
@@ -631,7 +632,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Blackout Event has run");
+                Helpers.Utils.LogToServerConsole("Blackout Event has run");
             }
         }
 
@@ -645,7 +646,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Skill);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Skill);
             }
 
             var chance = SharedRandom.Next(0, 101);
@@ -693,7 +694,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Skill Event has run");
+                Helpers.Utils.LogToServerConsole("Skill Event has run");
             }
         }
 
@@ -703,7 +704,7 @@ namespace RaidOverhaul.Controllers
             {
                 if (FikaBridge.AmHost())
                 {
-                    FikaBridge.SendRandomEventPacket(Utils.Metabolism);
+                    FikaBridge.SendRandomEventPacket(Helpers.Utils.Metabolism);
                 }
 
                 var chance = SharedRandom.Next(0, 101);
@@ -757,7 +758,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Metabolism Event has run");
+                Helpers.Utils.LogToServerConsole("Metabolism Event has run");
             }
         }
 
@@ -811,7 +812,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Malf);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Malf);
             }
 
             _malfEventHasRun = true;
@@ -831,7 +832,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Malfunction Event has started");
+                Helpers.Utils.LogToServerConsole("Malfunction Event has started");
             }
 
             var elapsed = 0;
@@ -854,7 +855,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Malfunction Event has run");
+                Helpers.Utils.LogToServerConsole("Malfunction Event has run");
             }
         }
 
@@ -868,7 +869,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Berserk);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Berserk);
             }
 
             _berserkEventHasRun = true;
@@ -896,7 +897,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Berserk Event has started");
+                Helpers.Utils.LogToServerConsole("Berserk Event has started");
             }
 
             await UniTask.WaitForSeconds(180);
@@ -914,7 +915,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Berserk Event has run");
+                Helpers.Utils.LogToServerConsole("Berserk Event has run");
             }
         }
 
@@ -930,7 +931,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Weight);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Weight);
             }
 
             _weightEventHasRun = true;
@@ -958,7 +959,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Weight Event has started");
+                    Helpers.Utils.LogToServerConsole("Weight Event has started");
                 }
 
                 await UniTask.WaitForSeconds(180);
@@ -967,7 +968,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Weight Event has run");
+                    Helpers.Utils.LogToServerConsole("Weight Event has run");
                 }
 
                 NotificationHelper.Show(
@@ -993,7 +994,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Weight Event has started");
+                    Helpers.Utils.LogToServerConsole("Weight Event has started");
                 }
 
                 await UniTask.WaitForSeconds(180);
@@ -1008,7 +1009,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Weight Event has run");
+                    Helpers.Utils.LogToServerConsole("Weight Event has run");
                 }
             }
         }
@@ -1017,11 +1018,11 @@ namespace RaidOverhaul.Controllers
         {
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.LoyaltyLevel);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.LoyaltyLevel);
             }
 
             int chance = SharedRandom.Next(0, 101);
-            var traders = ConfigController.ServerConfig.EnableRequisitionOffice ? Utils.Traders : Utils.TradersNoReq;
+            var traders = ConfigController.ServerConfig.EnableRequisitionOffice ? Helpers.Utils.Traders : Helpers.Utils.TradersNoReq;
             var trader = traders.RandomElement();
 
             string traderName = trader.Key ?? "A trader";
@@ -1039,7 +1040,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Trader Rep Gain Event has run");
+                    Helpers.Utils.LogToServerConsole("Trader Rep Gain Event has run");
                 }
             }
             else
@@ -1056,7 +1057,7 @@ namespace RaidOverhaul.Controllers
 
                     if (ConfigController.DebugConfig.DebugMode)
                     {
-                        Utils.LogToServerConsole("Trader Rep Loss Event has run");
+                        Helpers.Utils.LogToServerConsole("Trader Rep Loss Event has run");
                     }
                 }
                 else
@@ -1076,7 +1077,7 @@ namespace RaidOverhaul.Controllers
 
                 if (FikaBridge.AmHost())
                 {
-                    FikaBridge.SendRandomEventPacket(Utils.MaxLoyaltyLevel);
+                    FikaBridge.SendRandomEventPacket(Helpers.Utils.MaxLoyaltyLevel);
                 }
 
                 if (!ConfigController.ProfileFlags.TraderRepFlag)
@@ -1087,7 +1088,7 @@ namespace RaidOverhaul.Controllers
                         return;
                     }
 
-                    var traders = ConfigController.ServerConfig.EnableRequisitionOffice ? Utils.Traders : Utils.TradersNoReq;
+                    var traders = ConfigController.ServerConfig.EnableRequisitionOffice ? Helpers.Utils.Traders : Helpers.Utils.TradersNoReq;
 
                     _maxLLEventCount++;
 
@@ -1109,7 +1110,7 @@ namespace RaidOverhaul.Controllers
 
                     if (ConfigController.DebugConfig.DebugMode)
                     {
-                        Utils.LogToServerConsole("Shopping Spree Event has run");
+                        Helpers.Utils.LogToServerConsole("Shopping Spree Event has run");
                     }
                 }
                 else if (ConfigController.ProfileFlags.TraderRepFlag)
@@ -1129,10 +1130,10 @@ namespace RaidOverhaul.Controllers
         {
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.CorrectRep);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.CorrectRep);
             }
 
-            var traders = ConfigController.ServerConfig.EnableRequisitionOffice ? Utils.Traders : Utils.TradersNoReq;
+            var traders = ConfigController.ServerConfig.EnableRequisitionOffice ? Helpers.Utils.Traders : Helpers.Utils.TradersNoReq;
             var session = GetSession();
 
             foreach (var trader in traders)
@@ -1152,7 +1153,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Lockdown);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Lockdown);
             }
 
             if (raidTimeLeft < 900 || ROPlayer.Location.ToLowerInvariant() == "laboratory")
@@ -1172,7 +1173,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Lockdown Event has started");
+                    Helpers.Utils.LogToServerConsole("Lockdown Event has started");
                 }
 
                 _exfilLockdown = true;
@@ -1206,7 +1207,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Lockdown Event has run");
+                    Helpers.Utils.LogToServerConsole("Lockdown Event has run");
                 }
             }
         }
@@ -1215,7 +1216,7 @@ namespace RaidOverhaul.Controllers
         {
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Artillery);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Artillery);
             }
 
             if (!_invalidArtilleryLocations.Contains(ROPlayer.Location.ToLowerInvariant()) && !_artyEventHasRun)
@@ -1231,7 +1232,7 @@ namespace RaidOverhaul.Controllers
 
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Artillery Event has started");
+                    Helpers.Utils.LogToServerConsole("Artillery Event has started");
                 }
 
                 await UniTask.WaitForSeconds(30);
@@ -1252,7 +1253,7 @@ namespace RaidOverhaul.Controllers
 
         internal async UniTask RunTrain()
         {
-            FikaBridge.SendFlareEventPacket(Utils.Train);
+            FikaBridge.SendFlareEventPacket(Helpers.Utils.Train);
 
             await UniTask.WaitForSeconds(3);
             var trainExfil = FindObjectOfType<Locomotive>();
@@ -1272,7 +1273,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Train is arriving");
+                Helpers.Utils.LogToServerConsole("Train is arriving");
             }
 
             await UniTask.WaitForSeconds(420);
@@ -1285,7 +1286,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Train is leaving");
+                Helpers.Utils.LogToServerConsole("Train is leaving");
             }
         }
 
@@ -1404,7 +1405,7 @@ namespace RaidOverhaul.Controllers
 
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.Hunted);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.Hunted);
             }
 
             _huntedEventRunning = true;
@@ -1429,7 +1430,7 @@ namespace RaidOverhaul.Controllers
         {
             if (!_pmcExfilEventRunning)
             {
-                FikaBridge.SendFlareEventPacket(Utils.PmcExfil);
+                FikaBridge.SendFlareEventPacket(Helpers.Utils.PmcExfil);
 
                 _pmcExfilEventRunning = true;
 
@@ -1442,7 +1443,7 @@ namespace RaidOverhaul.Controllers
                 EventsEffectsController.Instance?.ShowPositiveEffect();
                 if (ConfigController.DebugConfig.DebugMode)
                 {
-                    Utils.LogToServerConsole("Extract event has started");
+                    Helpers.Utils.LogToServerConsole("Extract event has started");
                 }
                 NotificationHelper.Show(
                     "All hostiles are converging on your position! Survive until extraction arrives.",
@@ -1472,7 +1473,7 @@ namespace RaidOverhaul.Controllers
                     NotificationHelper.NotificationColor.Green
                 );
 
-                var exfilSession = Singleton<AbstractGame>.Instance as EndByExitTrigerScenario.GInterface146;
+                var exfilSession = Singleton<AbstractGame>.Instance as EndByExitTrigerScenario.IGame;
                 string profileId = GamePlayerOwner.MyPlayer.ProfileId;
                 string exitName = Singleton<GameWorld>.Instance.ExfiltrationController.ExfiltrationPoints.FirstOrDefault().name;
 
@@ -1491,10 +1492,10 @@ namespace RaidOverhaul.Controllers
         {
             if (FikaBridge.AmHost())
             {
-                FikaBridge.SendRandomEventPacket(Utils.ExfilNow);
+                FikaBridge.SendRandomEventPacket(Helpers.Utils.ExfilNow);
             }
 
-            var exfilSession = Singleton<AbstractGame>.Instance as EndByExitTrigerScenario.GInterface146;
+            var exfilSession = Singleton<AbstractGame>.Instance as EndByExitTrigerScenario.IGame;
             string profileId = GamePlayerOwner.MyPlayer.ProfileId;
             string exitName = Singleton<GameWorld>.Instance.ExfiltrationController.ExfiltrationPoints.FirstOrDefault().name;
 
@@ -1522,7 +1523,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Invasion Event has started");
+                Helpers.Utils.LogToServerConsole("Invasion Event has started");
             }
         }
 
@@ -1553,9 +1554,9 @@ namespace RaidOverhaul.Controllers
             string zone = zones[SharedRandom.Next(zones.Length)];
 
             await UniTask.WaitForSeconds(60);
-            if (Utils.IsInRaid())
+            if (Helpers.Utils.IsInRaid())
             {
-                Utils.SpawnBoss(legionConfig, zone);
+                Helpers.Utils.SpawnBoss(legionConfig, zone);
                 EventsEffectsController.Instance?.ShowLegionQuestEffect();
             }
         }
@@ -1588,7 +1589,7 @@ namespace RaidOverhaul.Controllers
 
             if (ConfigController.ServerConfig.EnableCustomBoss && !ConfigController.ProfileFlags.UnlockQuestCompleted)
             {
-                var quest = Utils.GetQuest(ROQuestController, "66f0eb2c12fb0ed12fbcfd46");
+                var quest = Helpers.Utils.GetQuest(ROQuestController, "66f0eb2c12fb0ed12fbcfd46");
                 if (quest != null)
                 {
                     if (
@@ -1668,11 +1669,11 @@ namespace RaidOverhaul.Controllers
 
         private async UniTaskVoid RunBodyCleanupCycle()
         {
-            while (Utils.IsInRaid())
+            while (Helpers.Utils.IsInRaid())
             {
                 await UniTask.WaitForSeconds(ROPluginConfig.TimeToClean.Value * 60f);
 
-                if (!Utils.IsInRaid())
+                if (!Helpers.Utils.IsInRaid())
                 {
                     break;
                 }
@@ -1747,7 +1748,7 @@ namespace RaidOverhaul.Controllers
                     NotificationHelper.NotificationLength.Medium,
                     NotificationHelper.NotificationColor.Gold
                 );
-                Utils.LogToServerConsole($"Items found: {PendingCorpseItems.Count}");
+                Helpers.Utils.LogToServerConsole($"Items found: {PendingCorpseItems.Count}");
                 await DispatchCorpseAirdrops();
             }
         }
@@ -1775,7 +1776,7 @@ namespace RaidOverhaul.Controllers
                 NotificationHelper.NotificationLength.Long,
                 NotificationHelper.NotificationColor.Gold
             );
-            Utils.LogToServerConsole($"Corpse Cleanup: Bodies cleared. {airdropCount} airdrop(s) inbound with salvaged gear.");
+            Helpers.Utils.LogToServerConsole($"Corpse Cleanup: Bodies cleared. {airdropCount} airdrop(s) inbound with salvaged gear.");
 
             for (int i = 0; i < airdropCount; i++)
             {
@@ -1847,7 +1848,7 @@ namespace RaidOverhaul.Controllers
 
         public void TriggerManualCleanup()
         {
-            if (!Utils.IsInRaid())
+            if (!Helpers.Utils.IsInRaid())
             {
                 return;
             }

@@ -1,13 +1,13 @@
-﻿using SPTarkov.DI.Annotations;
+﻿using SPTarkov.Common.Models.Logging;
+using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 
 namespace RaidOverhaulMain.Helpers;
 
 [Injectable(InjectionType.Singleton)]
-public class ROFluentTraderAssortHelper(DatabaseService databaseService, ISptLogger<ROFluentTraderAssortHelper> logger)
+public class ROFluentTraderAssortHelper(TradersTable tradersTable, ISptLogger<ROFluentTraderAssortHelper> logger)
 {
     private readonly List<Item> _itemsToSell = [];
     private readonly Dictionary<string, List<List<BarterScheme>>> _barterScheme = new();
@@ -74,7 +74,7 @@ public class ROFluentTraderAssortHelper(DatabaseService databaseService, ISptLog
 
     public ROFluentTraderAssortHelper? Export(string traderId)
     {
-        var traderData = databaseService.GetTables().Traders.GetValueOrDefault(traderId)!;
+        var traderData = tradersTable.GetValueOrDefault(traderId)!;
         var rootItemAddedId = _itemsToSell[0].Id;
 
         if (traderData.Assort.Items.Exists(x => x.Id == rootItemAddedId))

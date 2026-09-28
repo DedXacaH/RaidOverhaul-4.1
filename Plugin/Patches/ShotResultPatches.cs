@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using EFT;
+using EFT.Ballistics;
 using EFT.InventoryLogic;
 using HarmonyLib;
 using SPT.Reflection.Patching;
@@ -137,11 +138,11 @@ namespace RaidOverhaul.Patches
         [PatchPostfix]
         private static void PatchPostfix(
             Player __instance,
-            DamageInfoStruct damageInfo,
+            DamageInfo damageInfo,
             EBodyPart bodyPartType,
             EBodyPartColliderType colliderType,
             EArmorPlateCollider armorPlateCollider,
-            ShotIdStruct shotId
+            ShotId shotId
         )
         {
             if (bodyPartType == EBodyPart.Head && !string.IsNullOrEmpty(damageInfo.BlockedBy))

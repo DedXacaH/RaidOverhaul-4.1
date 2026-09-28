@@ -4,6 +4,7 @@ using System.Linq;
 using BepInEx.Logging;
 using Comfort.Common;
 using EFT;
+using EFT.Quests;
 using Newtonsoft.Json;
 using SPT.Common.Http;
 
@@ -168,14 +169,14 @@ namespace RaidOverhaul.Helpers
 
             if (bossConfig.AdditionalSupports != null && bossConfig.AdditionalSupports.Length > 0)
             {
-                wave.SubDatas = new List<BossLocationSpawnSubData>();
+                wave._subDatas= new List<BossLocationSpawnSubData>();
                 int totalEscorts = bossConfig.BossEscortCount;
 
                 foreach (var support in bossConfig.AdditionalSupports)
                 {
                     var difficulty = (BotDifficulty)Enum.Parse(typeof(BotDifficulty), support.BossEscortDifficult[0]);
                     var subData = new BossLocationSpawnSubData(support.BossEscortAmount, support.BossEscortType, difficulty);
-                    wave.SubDatas.Add(subData);
+                    wave._subDatas.Add(subData);
                     totalEscorts += subData.BossEscortAmount;
                 }
 
@@ -185,10 +186,10 @@ namespace RaidOverhaul.Helpers
             spawner.ActivateBotsByWave(wave);
         }
 
-        public static QuestClass GetQuest(AbstractQuestControllerClass questController, string questId)
+        public static Quest GetQuest(QuestController questController, string questId)
         {
             object quests = Plugin._abstractQuestControllerQuestsProp.GetValue(questController);
-            return Plugin._abstractQuestControllerGetMethod.Invoke(quests, new object[] { questId }) as QuestClass;
+            return Plugin._abstractQuestControllerGetMethod.Invoke(quests, new object[] { questId }) as Quest;
         }
     }
 

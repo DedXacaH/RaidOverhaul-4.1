@@ -8,16 +8,16 @@ using BepInEx.Logging;
 using Comfort.Common;
 using DrakiaXYZ.BigBrain.Brains;
 using EFT;
+using EFT.Quests;
 using HarmonyLib;
 using RaidOverhaul.Behavior.Layers;
 using RaidOverhaul.Checkers;
 using RaidOverhaul.Controllers;
 using RaidOverhaul.Fika;
-using RaidOverhaul.Helpers;
+using SPT.Reflection.Utils;
 using RaidOverhaul.Models;
 using RaidOverhaul.Patches;
 using RaidOverhaulPrepatch.Helpers;
-using SPT.Reflection.Utils;
 using UnityEngine;
 
 [assembly: AssemblyTitle(ClientInfo.ROPluginName)]
@@ -27,17 +27,17 @@ using UnityEngine;
 
 namespace RaidOverhaul
 {
-    [BepInIncompatibility(Utils.ROStandaloneKey)]
-    [BepInDependency(Utils.UnityToolkitKey, BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency(Utils.BigBrainKey, BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency(Utils.SAINKey, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInIncompatibility(Helpers.Utils.ROStandaloneKey)]
+    [BepInDependency(Helpers.Utils.UnityToolkitKey, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(Helpers.Utils.BigBrainKey, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(Helpers.Utils.SAINKey, BepInDependency.DependencyFlags.HardDependency)]
     [BepInPlugin(ClientInfo.ROGUID, ClientInfo.ROPluginName, ClientInfo.PluginVersion)]
     public class Plugin : BaseUnityPlugin
     {
         public static string ModPath = Path.Combine(Environment.CurrentDirectory, "SPT", "user", "mods", "RaidOverhaul");
         public static readonly string PluginPath = Path.Combine(Environment.CurrentDirectory, "BepInEx", "plugins", "RaidOverhaul");
         public static readonly string ResourcePath = Path.Combine(PluginPath, "Resources");
-        internal static readonly List<string> _softDependancies = [Utils.FikaCoreKey];
+        internal static readonly List<string> _softDependancies = [Helpers.Utils.FikaCoreKey];
 
         public static GameObject UICanvasPrefab;
         public static GameObject UIItemRowPrefab;
@@ -76,9 +76,9 @@ namespace RaidOverhaul
             get { return ROPlayer.HandsController as Player.FirearmController; }
         }
 
-        internal static AbstractQuestControllerClass ROQuestController
+        internal static QuestController ROQuestController
         {
-            get { return ROGameWorld.MainPlayer.AbstractQuestControllerClass; }
+            get { return ROGameWorld.MainPlayer.QuestController; }
         }
 
         private static bool RealismDetected { get; set; }
@@ -146,15 +146,15 @@ namespace RaidOverhaul
                 SoundBeepYellow = audioBundle.LoadAsset<AudioClip>("beep_yellow");
             }
 
-            ConfigController.EventConfig = Utils.Get<EventsConfig>("/RaidOverhaul/GetEventConfig");
-            ConfigController.ServerConfig = Utils.Get<ServerConfigs>("/RaidOverhaul/GetServerConfig");
-            ConfigController.DebugConfig = Utils.Get<DebugConfigs>("/RaidOverhaul/GetDebugConfig");
-            ConfigController.SeasonConfig = Utils.Get<SeasonalConfig>("/RaidOverhaul/GetWeatherConfig");
-            ConfigController.LegionConfig = Utils.Get<LegionProgressionConfig>("/RaidOverhaul/GetLegionConfig");
+            ConfigController.EventConfig = Helpers.Utils.Get<EventsConfig>("/RaidOverhaul/GetEventConfig");
+            ConfigController.ServerConfig = Helpers.Utils.Get<ServerConfigs>("/RaidOverhaul/GetServerConfig");
+            ConfigController.DebugConfig = Helpers.Utils.Get<DebugConfigs>("/RaidOverhaul/GetDebugConfig");
+            ConfigController.SeasonConfig = Helpers.Utils.Get<SeasonalConfig>("/RaidOverhaul/GetWeatherConfig");
+            ConfigController.LegionConfig = Helpers.Utils.Get<LegionProgressionConfig>("/RaidOverhaul/GetLegionConfig");
 
             _abstractQuestControllerQuestsProp = AccessTools.Property(
-                typeof(AbstractQuestControllerClass),
-                nameof(AbstractQuestControllerClass.Quests)
+                typeof(QuestController),
+                nameof(QuestController.Quests)
             );
             _abstractQuestControllerGetMethod = AccessTools.Method(
                 _abstractQuestControllerQuestsProp.PropertyType,
@@ -205,7 +205,7 @@ namespace RaidOverhaul
             FikaBridge.PluginEnable();
         }
 
-        internal static ISession GetSession()
+        internal static IEftSession GetSession()
         {
             return ClientAppUtils.GetMainApp()?.GetClientBackEndSession();
         }
@@ -217,11 +217,11 @@ namespace RaidOverhaul
 
         private void InitializeModDetections()
         {
-            if (Chainloader.PluginInfos.ContainsKey(Utils.FikaCoreKey))
+            if (Chainloader.PluginInfos.ContainsKey(Helpers.Utils.FikaCoreKey))
             {
                 FikaDetected = true;
             }
-            if (Chainloader.PluginInfos.ContainsKey(Utils.RealismKey))
+            if (Chainloader.PluginInfos.ContainsKey(Helpers.Utils.RealismKey))
             {
                 RealismDetected = true;
             }

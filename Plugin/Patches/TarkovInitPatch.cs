@@ -1,5 +1,6 @@
 using System.Reflection;
 using EFT;
+using EFT.AssetsManager;
 using EFT.InputSystem;
 using HarmonyLib;
 using RaidOverhaul.Controllers;
@@ -35,7 +36,7 @@ namespace RaidOverhaul.Patches
             Plugin.RegisterSupportBrainLayers();
             if (ConfigController.DebugConfig.DebugMode)
             {
-                Utils.LogToServerConsole("Brain layers successfully registered.");
+                Helpers.Utils.LogToServerConsole("Brain layers successfully registered.");
             }
         }
     }

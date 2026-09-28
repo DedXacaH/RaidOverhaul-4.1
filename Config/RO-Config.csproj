@@ -34,7 +34,7 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(PublishSingleFile)' != 'true'">
     <PropertyGroup>
-      <ModBuildDir>$(ProjectDir)..\Build\SPT\user\mods\RaidOverhaul</ModBuildDir>
+      <ModBuildDir>$(ProjectDir)..\Build\SPT_Runtime\user\mods\RaidOverhaul</ModBuildDir>
       <PublishOutputDir>$(ProjectDir)publish</PublishOutputDir>
     </PropertyGroup>
 

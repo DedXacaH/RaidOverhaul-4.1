@@ -30,7 +30,6 @@ public class ROAssortHelper(
     RandomUtil randomUtil,
     ItemFilterService itemFilterService,
     SeasonalEventService seasonalEventService,
-    TraderConfig configServer,
     ROHelpers helpers,
     ROFluentTraderAssortHelper fluentAssortHelper,
     ICloner cloner

@@ -24,20 +24,20 @@ public sealed record ModMetadata : IModMetadata
     public string Author { get; init; } = "nameless";
     public List<string>? Contributors { get; init; }
     public SemanticVersioning.Version Version { get; init; } = new("3.1.0");
-    public SemanticVersioning.Range SptVersion { get; init; } = new("~4.1.0");
+    public SemanticVersioning.Range SptVersion { get; init; } = new("~4.1.5");
     public List<string>? Incompatibilities { get; init; }
     public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; } =
         new()
         {
             { "com.morebotsapi.tacticaltoaster", new SemanticVersioning.Range(">=2.1.1") },
-            { "com.wtt.commonlib", new SemanticVersioning.Range(">=3.0.6") },
+            { "com.wtt.commonlib", new SemanticVersioning.Range(">=3.0.0") },
         };
     public string? Url { get; init; }
     public string License { get; init; } = "CC BY-NC-ND 4.0";
     public bool HasPrepatcher { get; init; } = false;
 }
 
-[Injectable(InjectionType = InjectionType.Singleton, TypePriority = OnLoadOrder.Preload + 10)]
+[Injectable(InjectionType = InjectionType.Singleton, TypePriority = OnLoadOrder.Preload + 1)]
 public sealed class ROMain(
     ROStaticRouter roStaticRouter,
     ROCustomItems roCustomItems,

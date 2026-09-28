@@ -41,9 +41,9 @@ public class ROTraderHelper(ISptLogger<ROTraderHelper> logger, ICloner cloner, L
             Base = cloner.Clone(traderDetailsToAdd)!,
             QuestAssort = new()
             {
-                { "Started", new() },
-                { "Success", new() },
-                { "Fail", new() },
+                { "started", new() },
+                { "success", new() },
+                { "fail", new() },
             },
             Dialogue = [],
         };

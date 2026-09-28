@@ -27,7 +27,7 @@
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <PropertyGroup>
-      <ServerBuildDir>$(ProjectDir)..\Build\SPT\user\mods\RaidOverhaul</ServerBuildDir>
+      <ServerBuildDir>$(ProjectDir)..\Build\SPT_Runtime\user\mods\RaidOverhaul</ServerBuildDir>
     </PropertyGroup>
 
     <RemoveDir Directories="$(ServerBuildDir)" />

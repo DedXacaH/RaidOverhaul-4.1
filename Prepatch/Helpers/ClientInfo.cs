@@ -2,7 +2,7 @@
 {
     public static class ClientInfo
     {
-        public const int TarkovVersion = 40087;
+        public const int TarkovVersion = 40743;
 
         public const string ROGUID = "nameless.raidoverhaul.plugin";
         public const string ROPrepatchGUID = "nameless.raidoverhaul.prepatch";
